@@ -53,3 +53,7 @@ def pyramidnet_cifar10_fmix(pretrained=False, *args, **kwargs):
 
 def pyramidnet_cifar10_mixup(pretrained=False, *args, **kwargs):
     return _pyramidnet('mixup', pretrained, *args, **kwargs)
+
+
+from torch.hub import load
+m = load('ecs-vlc/FMix:fmix', 'pyramidnet_cifar10_mixup', pretrained=True)
