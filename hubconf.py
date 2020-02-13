@@ -13,6 +13,3 @@ def preact_resnet18_fmix(pretrained=False, *args, **kwargs):
         model.load_state_dict(state)
 
     return model
-
-import torch
-torch.hub.load('./', 'preact_resnet18_fmix')
