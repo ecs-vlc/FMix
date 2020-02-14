@@ -9,7 +9,7 @@ def _preact_resnet18(msda='fmix', pretrained=False, *args, **kwargs):
 
     if pretrained:
         state = load_state_dict_from_url(
-            'http://marc.ecs.soton.ac.uk/pytorch-models/cifar10/preact-resnet18/{}.pt'.format(msda), progress=True)
+            'http://marc.ecs.soton.ac.uk/pytorch-models/cifar10/preact-resnet18/cifar10_preact_resnet18_{}.pt'.format(msda), progress=True)
         model.load_state_dict(state)
 
     return model
@@ -21,7 +21,7 @@ def _resnet101(msda='fmix', pretrained=False, *args, **kwargs):
 
     if pretrained:
         state = load_state_dict_from_url(
-            'http://marc.ecs.soton.ac.uk/pytorch-models/imagenet/resnet101/{}.pt'.format(msda), progress=True)
+            'http://marc.ecs.soton.ac.uk/pytorch-models/imagenet/resnet101/imagenet_resnet101_{}.pt'.format(msda), progress=True)
         model.load_state_dict(state)
 
     return model
@@ -33,7 +33,7 @@ def _pyramidnet(msda='fmix', pretrained=False, *args, **kwargs):
 
     if pretrained:
         state = load_state_dict_from_url(
-            'http://marc.ecs.soton.ac.uk/pytorch-models/cifar10/pyramidnet/{}.pt'.format(msda), progress=True)
+            'http://marc.ecs.soton.ac.uk/pytorch-models/cifar10/pyramidnet/cifar10_pyramidnet_{}.pt'.format(msda), progress=True)
         model.load_state_dict(state)
 
     return model
