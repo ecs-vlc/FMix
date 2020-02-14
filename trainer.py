@@ -47,7 +47,6 @@ parser.add_argument('--msda-mode', default=None, type=str, choices=['fmix', 'cut
 # Aug Params
 parser.add_argument('--alpha', default=1., type=float, help='mixup/fmix interpolation coefficient')
 parser.add_argument('--f-decay', default=3.0, type=float, help='decay power')
-parser.add_argument('--t-alpha', default=1., type=float, help='target alpha')
 parser.add_argument('--cutout_l', default=16, type=int, help='cutout/erase length')
 parser.add_argument('--reformulate', default=False, type=ast.literal_eval, help='Use reformulated fmix/mixup')
 
@@ -105,7 +104,7 @@ def write_params(_):
 
 
 modes = {
-    'fmix': FMix(decay_power=args.f_decay, alpha=args.alpha, size=size, max_soft=0, reformulate=args.reformulate),
+    'fmix': FMix(decay_power=args.f_decay, alpha=args.alpha, size=(size, size), max_soft=0, reformulate=args.reformulate),
     'mixup': RMixup(args.alpha, reformulate=args.reformulate),
     'cutmix': CutMix(args.alpha, classes, True),
 }

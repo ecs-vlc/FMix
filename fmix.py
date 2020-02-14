@@ -61,15 +61,18 @@ def make_low_freq_image(decay, shape, ch=1):
     :param ch: Number of channels for desired mask
     """
     freqs = fftfreqnd(*shape)
-    spectrum = get_spectrum(freqs, decay, ch, *shape)
+    spectrum = get_spectrum(freqs, decay, ch, *shape)#.reshape((1, *shape[:-1], -1))
+    spectrum = spectrum[:, 0] + 1j * spectrum[:, 1]
+    mask = np.real(np.fft.irfftn(spectrum, shape))
 
-    mask = np.fft.irfftn(spectrum.reshape(1, *shape[:-1], -1), shape)
     if len(shape) == 1:
         mask = mask[:1, :shape[0]]
     if len(shape) == 2:
         mask = mask[:1, :shape[0], :shape[1]]
     if len(shape) == 3:
         mask = mask[:1, :shape[0], :shape[1], :shape[2]]
+
+    mask = mask
     mask = (mask - mask.min())
     mask = mask / mask.max()
     return mask
@@ -185,38 +188,3 @@ class FMixBase:
 
     def loss(self, *args, **kwargs):
         raise NotImplementedError
-
-
-# import numpy as np
-# import matplotlib.pyplot as plt
-#
-# x = y = z = torch.linspace(0, 32, 32)
-#
-# shape = [32, 32]
-# img = make_low_freq_image(3, shape=shape)
-#
-# plt.imshow(img[0])
-# plt.show()
-
-
-# index, lam, mask, x1, x2 = s.sample_mask(torch.rand(1, 1, 32, 32, 32), 1, 3, 1, s.get_freqs(32, 32, 32), 'cpu', nc=1, dims=3)
-
-
-# nz = torch.nonzero(img > 0.3)
-
-# plt.plot(img[0] > 0.5)
-# plt.plot(mask[0,0])
-# plt.show()
-
-# plt.imshow(mask[0,0])
-# plt.show()
-
-# fig = plt.figure()
-# mask = mask[0,0]
-# nz = torch.nonzero(mask).squeeze()
-# ax = fig.add_subplot(111, projection='3d')
-# ax.scatter(nz[:, 0], nz[:, 1], nz[:, 2], )
-# ax.set_xlabel('X')
-# ax.set_ylabel('Y')
-# ax.set_zlabel('Z')
-# plt.show()
