@@ -10,13 +10,11 @@ from torchbearer import Trial
 from torchbearer.callbacks import MultiStepLR, CosineAnnealingLR
 from torchbearer.callbacks import TensorBoard, TensorBoardText, Cutout, CutMix, RandomErase
 
-from datasets.datasets import ds, dstransforms, dsmeta
+from datasets.datasets import ds, dsmeta
 from implementations.torchbearer_implementation import FMix, PointNetFMix
 from models.models import get_model
 from utils import RMixup, MSDAAlternator, WarmupLR
 from datasets.toxic import ToxicHelper
-
-#--msda-mode=fmix --dataset=modelnet --dataset-path=/media/matt/Data/datasets/modelnet10/ModelNet10/ModelNet10 --model=PointNet --num-workers=0 --batch-size=32
 
 
 # Setup

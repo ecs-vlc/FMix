@@ -154,7 +154,7 @@ def imagenet(args):
     data = ImageFolder
     transform_train, transform_test = dstransforms[args.dataset](args)
 
-    root = '/ssd/ILSVRC2012' if args.dataset_path is None else args.dataset_path
+    root = './data/ILSVRC2012' if args.dataset_path is None else args.dataset_path
 
     trainset = data(root=root, transform=transform_train)
     testset = data(root=root, transform=transform_test)
@@ -167,7 +167,7 @@ def tinyimagenet(args):
     data = TinyImageNet
     transform_train, transform_test = dstransforms[args.dataset](args)
 
-    root = '/ssd/tinyimagenet' if args.dataset_path is None else args.dataset_path
+    root = './data/tinyimagenet' if args.dataset_path is None else args.dataset_path
 
     trainset = data(root=root, transform=transform_train)
     valset = data(root=root, transform=transform_test, train=False)
