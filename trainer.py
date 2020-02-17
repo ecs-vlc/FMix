@@ -18,6 +18,7 @@ from datasets.toxic import ToxicHelper
 
 #--msda-mode=fmix --dataset=modelnet --dataset-path=/media/matt/Data/datasets/modelnet10/ModelNet10/ModelNet10 --model=PointNet --num-workers=0 --batch-size=32
 
+
 # Setup
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--dataset', type=str, default='cifar10',
@@ -87,6 +88,7 @@ valloader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size, shuf
 testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if not args.dataset == 'toxic' else testset
 
 
+
 print('==> Building model..')
 net = get_model(args, classes, nc)
 net = nn.DataParallel(net) if args.parallel else net
@@ -124,7 +126,7 @@ modes.update({
 mode = 'pointcloud_fmix' if (args.msda_mode == 'fmix' and args.dataset == 'modelnet') else args.msda_mode
 
 cb = [tboard, tboardtext, write_params, torchbearer.callbacks.MostRecent(args.model_file)]
-# Toxic helped needs to go before the msda to reshape the input
+# Toxic helper needs to go before the msda to reshape the input
 cb.append(ToxicHelper()) if args.dataset == 'toxic' else []
 cb.append(modes[mode]) if args.msda_mode is not None else []
 cb.append(Cutout(1, args.cutout_l)) if args.cutout else []
@@ -136,7 +138,8 @@ cb.append(WarmupLR(0.1, args.lr)) if args.lr_warmup else []
 
 # FMix loss is equivalent to mixup loss and works for all msda in torchbearer
 if args.msda_mode is not None:
-    criterion = modes['fmix'].loss()
+    bce = True if args.dataset == 'toxic' else False
+    criterion = modes['fmix'].loss(bce)
 elif args.dataset == 'toxic':
     criterion = nn.BCEWithLogitsLoss()
 else:
@@ -146,6 +149,7 @@ else:
 print('==> Training model..')
 trial = Trial(net, optimizer, criterion, metrics=['acc', 'loss', 'lr'], callbacks=cb)
 trial.with_generators(train_generator=trainloader, val_generator=valloader, train_steps=args.train_steps, test_generator=testloader).to(args.device)
+
 if args.reload:
     state = torch.load(args.model_file)
     trial.load_state_dict(state)

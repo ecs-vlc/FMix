@@ -5,7 +5,7 @@ from fmix import sample_mask, FMixBase
 import torch
 
 
-def fmix_loss(input, y, index, lam, train=True, reformulate=False):
+def fmix_loss(input, y, index, lam, train=True, reformulate=False, bce_loss=False):
     r"""Criterion for fmix
 
     Args:
@@ -15,11 +15,13 @@ def fmix_loss(input, y, index, lam, train=True, reformulate=False):
         lam: Lambda value of mixing
         train: If true, sum cross entropy of input with y1 and y2, weighted by lam/(1-lam). If false, cross entropy loss with y1
     """
+    loss_fn = F.cross_entropy if not bce_loss else F.binary_cross_entropy_with_logits
+
     if train and not reformulate:
         y2 = y[index]
-        return F.cross_entropy(input, y) * lam + F.cross_entropy(input, y2) * (1 - lam)
+        return loss_fn(input, y) * lam + loss_fn(input, y2) * (1 - lam)
     else:
-        return F.cross_entropy(input, y)
+        return loss_fn(input, y)
 
 
 class FMix(FMixBase, Callback):
@@ -78,14 +80,14 @@ class FMix(FMixBase, Callback):
         self.lam = lam
         return x1 + x2
 
-    def loss(self):
+    def loss(self, use_bce=False):
         def _fmix_loss(state):
             y_pred = state[torchbearer.Y_PRED]
             y = state[torchbearer.Y_TRUE]
             index = state[torchbearer.MIXUP_PERMUTATION] if torchbearer.MIXUP_PERMUTATION in state else None
             lam = state[torchbearer.MIXUP_LAMBDA] if torchbearer.MIXUP_LAMBDA in state else None
             train = state[torchbearer.MODEL].training
-            return fmix_loss(y_pred, y, index, lam, train, self.reformulate)
+            return fmix_loss(y_pred, y, index, lam, train, self.reformulate, use_bce)
 
         return _fmix_loss
 
