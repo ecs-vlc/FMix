@@ -28,7 +28,7 @@ class FMix(FMixBase, Callback):
         Args:
             decay_power (float): Decay power for frequency decay prop 1/f**d
             alpha (float): Alpha value for beta distribution from which to sample mean of mask
-            size ([int] | [int, int] | [int, int, int]): Shape of desired mask, list up to 3 dims
+            size ([int] | [int, int] | [int, int, int]): Shape of desired mask, list up to 3 dims. -1 computes on the fly
             max_soft (float): Softening value between 0 and 0.5 which smooths hard edges in the mask.
             reformulate (bool): If True, uses the reformulation of [1].
 
@@ -60,7 +60,14 @@ class FMix(FMixBase, Callback):
         state[torchbearer.MIXUP_PERMUTATION] = self.index
 
     def __call__(self, x):
-        lam, mask = sample_mask(self.alpha, self.decay_power, self.size, self.max_soft, self.reformulate)
+        size = []
+        for i, s in enumerate(self.size):
+            if s != -1:
+                size.append(s)
+            else:
+                size.append(x.shape[i+1])
+
+        lam, mask = sample_mask(self.alpha, self.decay_power, size, self.max_soft, self.reformulate)
         index = torch.randperm(x.size(0)).to(x.device)
         mask = torch.from_numpy(mask).float().to(x.device)
 
@@ -81,6 +88,20 @@ class FMix(FMixBase, Callback):
             return fmix_loss(y_pred, y, index, lam, train, self.reformulate)
 
         return _fmix_loss
+
+
+class PointNetFMix(FMix):
+    def __init__(self, resolution, decay_power=3, alpha=1, max_soft=0.0, reformulate=False):
+        super().__init__(decay_power, alpha, [resolution, resolution, resolution], max_soft, reformulate)
+        self.res = resolution
+
+    def __call__(self, x):
+        import kaolin.conversions as cvt
+        x = super().__call__(x)
+        t = []
+        for i in range(x.shape[0]):
+            t.append(cvt.voxelgrid_to_pointcloud(x[i], self.res, normalize=True))
+        return torch.stack(t)
 
 
 from torchbearer.metrics import default as d
