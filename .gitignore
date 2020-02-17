@@ -133,3 +133,5 @@ implementations/data
 implementations/lightning_logs
 data/
 .idea/
+saved_models/
+logs/
