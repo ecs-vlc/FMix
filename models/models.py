@@ -1,7 +1,8 @@
-
 import models
 from models import wrn
 import torchvision.models as m
+from kaolin.models.PointNet import PointNetClassifier
+from models.toxic_lstm import LSTM
 
 
 def get_model(args, classes, nc):
@@ -16,6 +17,12 @@ def get_model(args, classes, nc):
     # Load the WideResNet-28-10
     if args.model == 'wrn':
         return wrn(num_classes=classes, depth=28, widen_factor=10, nc=nc)
+
+    if args.model == 'PointNet' or args.dataset == 'modelnet':
+        return PointNetClassifier(num_classes=classes)
+
+    if args.dataset == 'toxic':
+        return LSTM()
 
     # Otherwise return models from other files
     return models.__dict__[args.model](num_classes=classes, nc=nc)

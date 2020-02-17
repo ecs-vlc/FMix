@@ -11,25 +11,30 @@ from torchbearer.callbacks import MultiStepLR, CosineAnnealingLR
 from torchbearer.callbacks import TensorBoard, TensorBoardText, Cutout, CutMix, RandomErase
 
 from datasets.datasets import ds, dstransforms, dsmeta
-from implementations.torchbearer_implementation import FMix
+from implementations.torchbearer_implementation import FMix, PointNetFMix
 from models.models import get_model
 from utils import RMixup, MSDAAlternator, WarmupLR
+from datasets.toxic import ToxicHelper
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+#--msda-mode=fmix --dataset=modelnet --dataset-path=/media/matt/Data/datasets/modelnet10/ModelNet10/ModelNet10 --model=PointNet --num-workers=0 --batch-size=32
+
 
 # Setup
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--dataset', type=str, default='cifar10',
-                    choices=['cifar10', 'cifar100', 'reduced_cifar', 'fashion', 'fashion_old', 'imagenet',
-                             'tinyimagenet', 'flowers', 'caltech101', 'cars', 'fixedup', 'commands', 'birds'])
+                    choices=['cifar10', 'cifar100', 'reduced_cifar', 'fashion', 'imagenet', 'tinyimagenet',
+                             'commands', 'modelnet', 'toxic'])
 parser.add_argument('--dataset-path', type=str, default=None, help='Optional dataset path')
 parser.add_argument('--split-fraction', type=float, default=1., help='Fraction of total data to train on for reduced_cifar dataset')
+parser.add_argument('--pointcloud-resolution', default=128, type=int, help='Resolution of pointclouds in modelnet dataset')
 parser.add_argument('--model', default="ResNet18", type=str, help='model type')
 parser.add_argument('--epoch', default=200, type=int, help='total epochs to run')
 parser.add_argument('--train-steps', type=int, default=None, help='Number of training steps to run per "epoch"')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--lr-warmup', type=ast.literal_eval, default=False, help='Use lr warmup')
 parser.add_argument('--batch-size', default=128, type=int, help='batch size')
+parser.add_argument('--device', default='cuda', type=str, help='Device on which to run')
+parser.add_argument('--num-workers', default=7, type=int, help='Number of dataloader workers')
 
 parser.add_argument('--auto-augment', type=ast.literal_eval, default=False, help='Use auto augment with cifar10/100')
 parser.add_argument('--augment', type=ast.literal_eval, default=True, help='use standard augmentation (default: True)')
@@ -42,7 +47,7 @@ parser.add_argument('--seed', default=0, type=int, help='random seed')
 parser.add_argument('--random-erase', default=False, type=ast.literal_eval, help='Apply random erase')
 parser.add_argument('--cutout', default=False, type=ast.literal_eval, help='Apply Cutout')
 parser.add_argument('--msda-mode', default=None, type=str, choices=['fmix', 'cutmix', 'mixup', 'alt_mixup_fmix',
-                                                                    'alt_mixup_cutmix', 'alt_fmix_cutmix'])
+                                                                    'alt_mixup_cutmix', 'alt_fmix_cutmix', 'None'])
 
 # Aug Params
 parser.add_argument('--alpha', default=1., type=float, help='mixup/fmix interpolation coefficient')
@@ -75,12 +80,13 @@ data = ds[args.dataset]
 meta = dsmeta[args.dataset]
 classes, nc, size = meta['classes'], meta['nc'], meta['size']
 
-transform_train, transform_test = dstransforms[args.dataset](args)
 trainset, valset, testset = data(args)
 
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=8)
-valloader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size, shuffle=True, num_workers=8)
-testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=True, num_workers=8)
+# Toxic comments uses its own data loaders
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if not args.dataset == 'toxic' else trainset
+valloader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if not args.dataset == 'toxic' else valset
+testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if not args.dataset == 'toxic' else testset
+
 
 
 print('==> Building model..')
@@ -104,9 +110,11 @@ def write_params(_):
 
 
 modes = {
-    'fmix': FMix(decay_power=args.f_decay, alpha=args.alpha, size=(size, size), max_soft=0, reformulate=args.reformulate),
+    'fmix': FMix(decay_power=args.f_decay, alpha=args.alpha, size=size, max_soft=0, reformulate=args.reformulate),
     'mixup': RMixup(args.alpha, reformulate=args.reformulate),
     'cutmix': CutMix(args.alpha, classes, True),
+    'pointcloud_fmix': PointNetFMix(args.pointcloud_resolution, decay_power=args.f_decay, alpha=args.alpha, max_soft=0,
+                                    reformulate=args.reformulate)
 }
 modes.update({
     'alt_mixup_fmix': MSDAAlternator(modes['fmix'], modes['mixup']),
@@ -114,21 +122,34 @@ modes.update({
     'alt_fmix_cutmix': MSDAAlternator(modes['fmix'], modes['cutmix']),
 })
 
+# Pointcloud fmix converts voxel grids back into point clouds after mixing
+mode = 'pointcloud_fmix' if (args.msda_mode == 'fmix' and args.dataset == 'modelnet') else args.msda_mode
+
 cb = [tboard, tboardtext, write_params, torchbearer.callbacks.MostRecent(args.model_file)]
-cb.append(modes[args.msda_mode]) if args.msda_mode is not None else []
+# Toxic helper needs to go before the msda to reshape the input
+cb.append(ToxicHelper()) if args.dataset == 'toxic' else []
+cb.append(modes[mode]) if args.msda_mode not in [None, 'None'] else []
 cb.append(Cutout(1, args.cutout_l)) if args.cutout else []
 cb.append(RandomErase(1, args.cutout_l)) if args.random_erase else []
-# WARNING: Schedulers appear to be broken in some versions of PyTorch, including 1.4. We used 1.3.1
+# WARNING: Schedulers appear to be broken (wrong lr output) in some versions of PyTorch, including 1.4. We used 1.3.1
 cb.append(MultiStepLR(args.schedule)) if not args.cosine_scheduler else cb.append(CosineAnnealingLR(args.epoch, eta_min=0.))
 cb.append(WarmupLR(0.1, args.lr)) if args.lr_warmup else []
 
 
 # FMix loss is equivalent to mixup loss and works for all msda in torchbearer
-criterion = modes['fmix'].loss() if args.msda_mode is not None else nn.CrossEntropyLoss()
+if args.msda_mode not in [None, 'None']:
+    bce = True if args.dataset == 'toxic' else False
+    criterion = modes['fmix'].loss(bce)
+elif args.dataset == 'toxic':
+    criterion = nn.BCEWithLogitsLoss()
+else:
+    criterion = nn.CrossEntropyLoss()
 
+# from torchbearer.metrics.roc_auc_score import RocAucScore
 print('==> Training model..')
 trial = Trial(net, optimizer, criterion, metrics=['acc', 'loss', 'lr'], callbacks=cb)
-trial.with_generators(train_generator=trainloader, val_generator=valloader, train_steps=args.train_steps, test_generator=testloader).to(device)
+trial.with_generators(train_generator=trainloader, val_generator=valloader, train_steps=args.train_steps, test_generator=testloader).to(args.device)
+
 if args.reload:
     state = torch.load(args.model_file)
     trial.load_state_dict(state)

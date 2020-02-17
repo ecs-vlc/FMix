@@ -4,6 +4,7 @@ from torchvision.transforms import Compose, Normalize, ToTensor, RandomCrop, Ran
 import os
 from datasets.tiny_imagenet import TinyImageNet
 from utils import split, EqualSplitter, auto_augment, _fa_reduced_cifar10
+from datasets.toxic import toxic_ds
 
 
 @auto_augment(_fa_reduced_cifar10)
@@ -76,6 +77,28 @@ def commands_transforms(args):
     return train_transform, test_transform
 
 
+def modelnet_transforms(args):
+    import kaolin.transforms as tfs
+
+    if args.msda_mode in ['mixup', 'cutmix', 'alt_mixup_fmix', 'alt_mixup_cutmix', 'alt_fmix_cutmix']:
+        raise RuntimeError('Mixup and CutMix callbacks not designed for 3D classification.')
+
+    fmix_transform = tfs.Compose([
+            tfs.TriangleMeshToVoxelGrid(args.pointcloud_resolution, normalize=True),
+        ])
+    test_transform = tfs.Compose([
+            tfs.TriangleMeshToPointCloud(num_samples=1000),
+            tfs.NormalizePointCloud()
+        ])
+
+    if args.msda_mode == 'fmix':
+        transform = fmix_transform
+    else:
+        transform = test_transform
+
+    return transform, test_transform
+
+
 dstransforms = {
     'cifar10': cifar_transforms,
     'cifar100': cifar_transforms,
@@ -85,6 +108,7 @@ dstransforms = {
     'tinyimagenet': tinyimagenet_transforms,
     'imagenet': imagenet_transforms,
     'commands': commands_transforms,
+    'modelnet': modelnet_transforms,
 }
 
 
@@ -162,6 +186,19 @@ def commands(args):
     return trainset, valset, testset
 
 
+@split
+def modelnet(args):
+    from kaolin.datasets import ModelNet
+
+    categories = ['chair', 'monitor', 'bathtub', 'bed', 'desk', 'dresser', 'night_stand', 'sofa', 'table', 'toilet']
+    transform_train, transform_test = dstransforms[args.dataset](args)
+
+    trainset = ModelNet(args.dataset_path, categories=categories, split='train', transform=transform_train, device=args.device)
+    valset = ModelNet(args.dataset_path, categories=categories, split='test', transform=transform_test, device=args.device)
+
+    return trainset, valset
+
+
 ds = {
     'cifar10': cifar,
     'cifar100': cifar,
@@ -171,15 +208,20 @@ ds = {
     'commands': commands,
     'tinyimagenet': tinyimagenet,
     'reduced_cifar': reduced_cifar,
+    'modelnet': modelnet,
+    'toxic': toxic_ds,
 }
 
 dsmeta = {
-    'cifar10': {'classes': 10, 'nc': 3, 'size': 32},
-    'cifar100': {'classes': 100, 'nc': 3, 'size': 32},
-    'fashion': {'classes': 10, 'nc': 1, 'size': 28},
-    'fashion_old': {'classes': 10, 'nc': 1, 'size': 28},
-    'imagenet': {'classes': 1000, 'nc': 3, 'size': 224},
-    'commands': {'classes': 12, 'nc': 1, 'size': 32},
-    'tinyimagenet': {'classes': 200, 'nc': 3, 'size': 64},
-    'reduced_cifar': {'classes': 10, 'nc': 3, 'size': 32},
+    'cifar10': {'classes': 10, 'nc': 3, 'size': (32, 32)},
+    'cifar100': {'classes': 100, 'nc': 3, 'size': (32, 32)},
+    'fashion': {'classes': 10, 'nc': 1, 'size': (28, 28)},
+    'fashion_old': {'classes': 10, 'nc': 1, 'size': (28, 28)},
+    'imagenet': {'classes': 1000, 'nc': 3, 'size': (224, 224)},
+    'commands': {'classes': 12, 'nc': 1, 'size': (32, 32)},
+    'tinyimagenet': {'classes': 200, 'nc': 3, 'size': (64, 64)},
+    'reduced_cifar': {'classes': 10, 'nc': 3, 'size': (32, 32)},
+    'modelnet': {'classes': 10, 'nc': None, 'size': None},
+    'toxic': {'classes': None, 'nc': None, 'size': (-1, 1)},
 }
+
