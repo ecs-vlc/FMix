@@ -41,17 +41,10 @@ class Estimator(nn.Module):
             self.est = nn.Sequential(
                 nn.Conv2d(in_size, 256, kernel_size=3, padding=1),
                 nn.ReLU(),
-                # nn.MaxPool2d(2, stride=2),
-                # nn.Conv2d(256, 512, kernel_size=3, padding=1),
-                # nn.ReLU(),
-                # nn.Conv2d(512, 512, kernel_size=3, padding=1),
-                # nn.ReLU(),
                 nn.AdaptiveAvgPool2d((2, 2)),
                 Flatten(),
                 nn.Linear(2 * 2 * 256, 512),
                 nn.ReLU(),
-                # nn.Linear(1024, 512),
-                # nn.ReLU(),
                 nn.Linear(512, 1)
             )
         else:
@@ -59,8 +52,6 @@ class Estimator(nn.Module):
             self.est = nn.Sequential(
                 nn.Linear(in_size, 512),
                 nn.ReLU(),
-                # nn.Linear(1024, 1024),
-                # nn.ReLU(),
                 nn.Linear(512, 512),
                 nn.ReLU(),
                 nn.Linear(512, 1)
@@ -77,9 +68,7 @@ class Estimator(nn.Module):
             x = x.view(x.size(0), -1)
         x = torch.cat((x, f), dim=1)
         x = self.pool(x)
-        # if self.training:
-        #     return self.est(x).tanh()
-        # else:
+
         return self.est(x)
 
 
@@ -89,22 +78,20 @@ cfgs = {
         'f4': lambda: Estimator(True, 256, halves=3), 'f5': lambda: Estimator(True, 512, halves=3), 'f6': lambda: Estimator(True, 512, halves=4),
         'f7': lambda: Estimator(True, 512, halves=4),
         'f8': lambda: Estimator(False, 512, False, halves=5), 'c1': lambda: Estimator(False, 2048), 'c2': lambda: Estimator(False, 2048)},
-    # 'A2': {'f1': Estimator(True, 64, halves=1)},
     'B': {},
     'D': {},
     'E': {},
 }
 
 
-# @callbacks.add_to_loss
 def mi(tanh):
     def mi_loss(state):
         m_t, m_t_shuffled = state[torchbearer.Y_PRED]
         mi = {}
         sum = 0.0
         for layer in m_t.keys():
-            t = m_t[layer]  # .clamp(max=1000)
-            t_shuffled = m_t_shuffled[layer]  # .clamp(min=-10)
+            t = m_t[layer]
+            t_shuffled = m_t_shuffled[layer]
             if tanh:
                 t = t.tanh()
                 t_shuffled = t_shuffled.tanh()
@@ -142,8 +129,6 @@ class MimeVGG(nn.Module):
 
         t, t_shuffled = process(x, cache, self.cfg)
 
-        # state[T] = t
-        # state[T_SHUFFLED] = t_shuffled
         return t, t_shuffled
 
 
@@ -157,10 +142,7 @@ if __name__ == '__main__':
 
     OTHER_MI = state_key('other_mi')
 
-    # cfg = {'f5': cfgs['A']['f5']}
     cfg = cfgs['A']
-    # temp = 0.5
-    # for i in range(2, 3):
 
     import argparse
 
@@ -168,7 +150,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', default='mix_3', type=str, help='model')
     args = parser.parse_args()
 
-    from vgg import vgg11_bn
+    from .vgg import vgg11_bn
 
     vgg = vgg11_bn(return_cache=True)
     vgg.load_state_dict(torch.load(args.model + '.pt')[torchbearer.MODEL])
