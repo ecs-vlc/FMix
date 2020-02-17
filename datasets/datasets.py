@@ -222,6 +222,6 @@ dsmeta = {
     'tinyimagenet': {'classes': 200, 'nc': 3, 'size': (64, 64)},
     'reduced_cifar': {'classes': 10, 'nc': 3, 'size': (32, 32)},
     'modelnet': {'classes': 10, 'nc': None, 'size': None},
-    'toxic': {'classes': None, 'nc': None, 'size': (-1, 300)},
+    'toxic': {'classes': None, 'nc': None, 'size': (-1, 1)},
 }
 
