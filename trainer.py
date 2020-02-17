@@ -47,7 +47,7 @@ parser.add_argument('--seed', default=0, type=int, help='random seed')
 parser.add_argument('--random-erase', default=False, type=ast.literal_eval, help='Apply random erase')
 parser.add_argument('--cutout', default=False, type=ast.literal_eval, help='Apply Cutout')
 parser.add_argument('--msda-mode', default=None, type=str, choices=['fmix', 'cutmix', 'mixup', 'alt_mixup_fmix',
-                                                                    'alt_mixup_cutmix', 'alt_fmix_cutmix'])
+                                                                    'alt_mixup_cutmix', 'alt_fmix_cutmix', 'None'])
 
 # Aug Params
 parser.add_argument('--alpha', default=1., type=float, help='mixup/fmix interpolation coefficient')
@@ -128,7 +128,7 @@ mode = 'pointcloud_fmix' if (args.msda_mode == 'fmix' and args.dataset == 'model
 cb = [tboard, tboardtext, write_params, torchbearer.callbacks.MostRecent(args.model_file)]
 # Toxic helper needs to go before the msda to reshape the input
 cb.append(ToxicHelper()) if args.dataset == 'toxic' else []
-cb.append(modes[mode]) if args.msda_mode is not None else []
+cb.append(modes[mode]) if args.msda_mode not in [None, 'None'] else []
 cb.append(Cutout(1, args.cutout_l)) if args.cutout else []
 cb.append(RandomErase(1, args.cutout_l)) if args.random_erase else []
 # WARNING: Schedulers appear to be broken (wrong lr output) in some versions of PyTorch, including 1.4. We used 1.3.1
@@ -137,7 +137,7 @@ cb.append(WarmupLR(0.1, args.lr)) if args.lr_warmup else []
 
 
 # FMix loss is equivalent to mixup loss and works for all msda in torchbearer
-if args.msda_mode is not None:
+if args.msda_mode not in [None, 'None']:
     bce = True if args.dataset == 'toxic' else False
     criterion = modes['fmix'].loss(bce)
 elif args.dataset == 'toxic':
