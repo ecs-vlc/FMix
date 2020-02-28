@@ -2,24 +2,25 @@
   
 # FMix
 
-This repository contains the __official__ implementation of the paper: Understanding and Enhancing Mixed Sample Data Augmentation
+This repository contains the __official__ implementation of the paper ['Understanding and Enhancing Mixed Sample Data Augmentation'](https://arxiv.org/abs/2002.12047)
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/understanding-and-enhancing-mixed-sample-data/image-classification-on-cifar-10)](https://paperswithcode.com/sota/image-classification-on-cifar-10?p=understanding-and-enhancing-mixed-sample-data)
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/understanding-and-enhancing-mixed-sample-data/image-classification-on-fashion-mnist)](https://paperswithcode.com/sota/image-classification-on-fashion-mnist?p=understanding-and-enhancing-mixed-sample-data)
 
 
 <p align="center">
-  <a href="">ArXiv</a> •
-  <a href="">Papers With Code</a> •
-  <a href="#examples">Getting Started</a> •
-  <a href="#install">Loading Pre-trained Models</a>
+  <a href="https://arxiv.org/abs/2002.12047">ArXiv</a> •
+  <a href="https://paperswithcode.com/paper/understanding-and-enhancing-mixed-sample-data">Papers With Code</a> •
+  <a href="#about">About</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#loading-pre-trained-models">Loading Pre-trained Models</a>
 </p>
 
 </div>
 
-## What is FMix?
+## About
 
-FMix is a variant of MixUp, CutMix, etc. introduced in our paper 'Understanding and Enhancing Mixed Sample Data Augmentation'. It uses masks sampled from Fourier space to mix training examples. Here's an example:
+FMix is a variant of MixUp, CutMix, etc. introduced in our paper ['Understanding and Enhancing Mixed Sample Data Augmentation'](https://arxiv.org/abs/2002.12047). It uses masks sampled from Fourier space to mix training examples. Here's an example:
 
 <div align="center">
   <img src="./fmix_example.png", width="60%">
@@ -84,4 +85,6 @@ def loss(model, x, y, training=True):
 
 See an example in [`test_tensorflow.py`](./implementations/test_tensorflow.py).
 
-## Loading Pre-trained Models
+## Loading Pre-trained Models With PyTorch Hub
+
+__COMING SOON__
