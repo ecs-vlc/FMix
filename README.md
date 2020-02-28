@@ -21,7 +21,9 @@ This repository contains the __official__ implementation of the paper: Understan
 
 FMix is a variant of MixUp, CutMix, etc. introduced in our paper 'Understanding and Enhancing Mixed Sample Data Augmentation'. It uses masks sampled from Fourier space to mix training examples. It looks something like this:
 
-![fmix_example](./fmix_example.png "FMix Example")
+<div align="center">
+  <img src="./fmix_example.png", width="80%">
+</div>
 
 ## Getting Started
 
