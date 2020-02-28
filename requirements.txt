@@ -4,3 +4,5 @@ numpy
 Pillow
 torchbearer
 pandas
+pytorch-lightning
+tensorflow
