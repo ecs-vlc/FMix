@@ -23,7 +23,7 @@ This repository contains the __official__ implementation of the paper ['Understa
 FMix is a variant of MixUp, CutMix, etc. introduced in our paper ['Understanding and Enhancing Mixed Sample Data Augmentation'](https://arxiv.org/abs/2002.12047). It uses masks sampled from Fourier space to mix training examples. Here's an example:
 
 <div align="center">
-  <img src="./fmix_example.png", width="60%">
+  <img src="./fmix_example.png", width="50%">
 </div>
 
 ## Getting Started
