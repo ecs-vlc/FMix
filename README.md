@@ -19,10 +19,10 @@ This repository contains the __official__ implementation of the paper: Understan
 
 ## What is FMix?
 
-FMix is a variant of MixUp, CutMix, etc. introduced in our paper 'Understanding and Enhancing Mixed Sample Data Augmentation'. It uses masks sampled from Fourier space to mix training examples. It looks something like this:
+FMix is a variant of MixUp, CutMix, etc. introduced in our paper 'Understanding and Enhancing Mixed Sample Data Augmentation'. It uses masks sampled from Fourier space to mix training examples. Here's an example:
 
 <div align="center">
-  <img src="./fmix_example.png", width="80%">
+  <img src="./fmix_example.png", width="70%">
 </div>
 
 ## Getting Started
