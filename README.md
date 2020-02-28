@@ -13,7 +13,7 @@ This repository contains the __official__ implementation of the paper ['Understa
   <a href="https://paperswithcode.com/paper/understanding-and-enhancing-mixed-sample-data">Papers With Code</a> •
   <a href="#about">About</a> •
   <a href="#getting-started">Getting Started</a> •
-  <a href="#loading-pre-trained-models">Loading Pre-trained Models</a>
+  <a href="#pre-trained-models">Pre-trained Models (Coming Soon)</a>
 </p>
 
 </div>
@@ -85,6 +85,6 @@ def loss(model, x, y, training=True):
 
 See an example in [`test_tensorflow.py`](./implementations/test_tensorflow.py).
 
-## Loading Pre-trained Models With PyTorch Hub
+## Pre-trained Models
 
 __COMING SOON__
