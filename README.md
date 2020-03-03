@@ -134,6 +134,8 @@ where `ARCHITECTURE` is one of the following:
 
 #### PreAct-ResNet-18
 
+<div align="center">
+
 | Configuration    | `ARCHITECTURE`                            | Accuracy |
 | ---------------- | ----------------------------------------- | -------- |
 | Baseline         | `'preact_resnet18_cifar10_baseline'`      | -------- |
@@ -141,7 +143,11 @@ where `ARCHITECTURE` is one of the following:
 |   + FMix         | `'preact_resnet18_cifar10_fmix'`          | -------- |
 |   + Mixup + FMix | `'preact_resnet18_cifar10_fmixplusmixup'` | -------- |
 
+</div>
+
 #### PyramidNet-200
+
+<div align="center">
 
 | Configuration    | `ARCHITECTURE`                       | Accuracy  |
 | ---------------- | ------------------------------------ | --------- |
@@ -149,12 +155,18 @@ where `ARCHITECTURE` is one of the following:
 |   + MixUp        | `'pyramidnet_cifar10_mixup'`         | 97.92     |
 |   + FMix         | `'pyramidnet_cifar10_fmix'`          | __98.64__ |
 
+</div>
+
 ### ImageNet
 
 #### ResNet-101
+
+<div align="center">
 
 | Configuration    | `ARCHITECTURE`                       | Accuracy (Top-1) |
 | ---------------- | ------------------------------------ | ---------------- |
 | Baseline         | `'renset101_imagenet_baseline'`      | 76.51            |
 |   + MixUp        | `'renset101_imagenet_mixup'`         | 76.27            |
 |   + FMix         | `'renset101_imagenet_fmix'`          | __76.72__        |
+
+</div>
