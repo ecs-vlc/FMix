@@ -135,4 +135,5 @@ data/
 .idea/
 saved_models/
 logs/
-!/notebooks/*.ipynb
+notebooks/*
+!notebooks/*.ipynb
