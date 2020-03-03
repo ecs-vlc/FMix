@@ -16,7 +16,9 @@ This repository contains the __official__ implementation of the paper ['Understa
 </p>
 
 <a href="https://colab.research.google.com/github/ecs-vlc/fmix/blob/master/notebooks/example_masks.ipynb">
-<img src="http://www.pytorchbearer.org/assets/img/colab_logo.png" height="28"> Dive in with our example notebook in Colab!
+<img src="http://www.pytorchbearer.org/assets/img/colab_logo.png" height="28">
+  
+Dive in with our example notebook in Colab!
 </a>
 
 </div>
