@@ -29,7 +29,7 @@ FMix is a variant of MixUp, CutMix, etc. introduced in our paper ['Understanding
 and in three!
 
 <div align="center">
-  <img src="./fmix_3d.gif", width="50%">
+  <img src="./fmix_3d.gif", width="40%">
 </div>
 
 ## Getting Started
