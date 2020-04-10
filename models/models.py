@@ -8,7 +8,7 @@ from models.toxic_lstm import LSTM
 def get_model(args, classes, nc):
     # Load torchvision models with "torch_" prefix
     if 'torch' in args.model:
-        return m.__dict__[args.model[6:]](num_classes=classes, pretrained=args.pretrained)
+        return m.__dict__[args.model[6:]](num_classes=classes, pretrained=False)
 
     # Load the pyramidnet used for autoaugment experiments on cifar
     if args.model == 'aa_PyramidNet':
