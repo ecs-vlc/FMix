@@ -127,7 +127,6 @@ mode = 'pointcloud_fmix' if (args.msda_mode == 'fmix' and args.dataset == 'model
 
 # CutMix callback returns mixed and original targets. We mix in the loss function instead
 @torchbearer.callbacks.on_sample
-@torchbearer.callbacks.on_sample_validation
 def cutmix_reformat(state):
     state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE][0]
 
