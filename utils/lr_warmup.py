@@ -16,4 +16,4 @@ class WarmupLR(Callback):
             opt = state[torchbearer.OPTIMIZER]
 
             for pg in opt.param_groups:
-                pg['lr'] = self.min_lr * delta + (1 - self.max_lr) * delta
+                pg['lr'] = self.min_lr * delta + self.max_lr * (1-delta)

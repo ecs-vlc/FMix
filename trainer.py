@@ -125,6 +125,11 @@ modes.update({
 # Pointcloud fmix converts voxel grids back into point clouds after mixing
 mode = 'pointcloud_fmix' if (args.msda_mode == 'fmix' and args.dataset == 'modelnet') else args.msda_mode
 
+# CutMix callback returns mixed and original targets. We mix in the loss function instead
+@torchbearer.callbacks.on_sample
+def cutmix_reformat(state):
+    state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE][0]
+
 cb = [tboard, tboardtext, write_params, torchbearer.callbacks.MostRecent(args.model_file)]
 # Toxic helper needs to go before the msda to reshape the input
 cb.append(ToxicHelper()) if args.dataset == 'toxic' else []
@@ -134,7 +139,7 @@ cb.append(RandomErase(1, args.cutout_l)) if args.random_erase else []
 # WARNING: Schedulers appear to be broken (wrong lr output) in some versions of PyTorch, including 1.4. We used 1.3.1
 cb.append(MultiStepLR(args.schedule)) if not args.cosine_scheduler else cb.append(CosineAnnealingLR(args.epoch, eta_min=0.))
 cb.append(WarmupLR(0.1, args.lr)) if args.lr_warmup else []
-
+cb.append(cutmix_reformat) if args.msda_mode == 'cutmix' else []
 
 # FMix loss is equivalent to mixup loss and works for all msda in torchbearer
 if args.msda_mode not in [None, 'None']:
