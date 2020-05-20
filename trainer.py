@@ -23,7 +23,7 @@ from datasets.toxic import ToxicHelper
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--dataset', type=str, default='cifar10',
                     choices=['cifar10', 'cifar100', 'reduced_cifar', 'fashion', 'imagenet', 'tinyimagenet',
-                             'commands', 'modelnet', 'toxic'])
+                             'commands', 'modelnet', 'toxic', 'bengali_r', 'bengali_c', 'bengali_v'])
 parser.add_argument('--dataset-path', type=str, default=None, help='Optional dataset path')
 parser.add_argument('--split-fraction', type=float, default=1., help='Fraction of total data to train on for reduced_cifar dataset')
 parser.add_argument('--pointcloud-resolution', default=128, type=int, help='Resolution of pointclouds in modelnet dataset')

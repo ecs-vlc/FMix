@@ -5,6 +5,7 @@ import os
 from datasets.tiny_imagenet import TinyImageNet
 from utils import split, EqualSplitter, auto_augment, _fa_reduced_cifar10
 from datasets.toxic import toxic_ds
+from datasets.bengali import BengaliConsonantDiacritic, BengaliGraphemeRoot, BengaliVowelDiacritic
 
 
 @auto_augment(_fa_reduced_cifar10)
@@ -99,6 +100,32 @@ def modelnet_transforms(args):
     return transform, test_transform
 
 
+def bengali_transforms(args):
+    import numpy as np
+    from PIL import Image
+
+    def crop_char_image(image, threshold=5. / 255.):
+        assert image.ndim == 2
+        is_black = image > threshold
+
+        is_black_vertical = np.sum(is_black, axis=0) > 0
+        is_black_horizontal = np.sum(is_black, axis=1) > 0
+        left = np.argmax(is_black_horizontal)
+        right = np.argmax(is_black_horizontal[::-1])
+        top = np.argmax(is_black_vertical)
+        bottom = np.argmax(is_black_vertical[::-1])
+        height, width = image.shape
+        cropped_image = image[left:height - right, top:width - bottom]
+        return Image.fromarray(cropped_image)
+
+    return Compose([
+        crop_char_image,
+        Resize((64, 64)),
+        ToTensor(),
+        Normalize((0.0692,), (0.2051,))
+    ])
+
+
 dstransforms = {
     'cifar10': cifar_transforms,
     'cifar100': cifar_transforms,
@@ -109,6 +136,9 @@ dstransforms = {
     'imagenet': imagenet_transforms,
     'commands': commands_transforms,
     'modelnet': modelnet_transforms,
+    'bengali_r': bengali_transforms,
+    'bengali_c': bengali_transforms,
+    'bengali_v': bengali_transforms
 }
 
 
@@ -199,6 +229,36 @@ def modelnet(args):
     return trainset, valset
 
 
+@split
+def bengali_r(args):
+    transform_train = dstransforms[args.dataset](args)
+
+    root = '/ssd/bengali' if args.dataset_path is None else args.dataset_path
+
+    trainset = BengaliGraphemeRoot(root=root, transform=transform_train)
+    return trainset
+
+
+@split
+def bengali_c(args):
+    transform_train = dstransforms[args.dataset](args)
+
+    root = '/ssd/bengali' if args.dataset_path is None else args.dataset_path
+
+    trainset = BengaliConsonantDiacritic(root=root, transform=transform_train)
+    return trainset
+
+
+@split
+def bengali_v(args):
+    transform_train = dstransforms[args.dataset](args)
+
+    root = '/ssd/bengali' if args.dataset_path is None else args.dataset_path
+
+    trainset = BengaliVowelDiacritic(root=root, transform=transform_train)
+    return trainset
+
+
 ds = {
     'cifar10': cifar,
     'cifar100': cifar,
@@ -210,6 +270,9 @@ ds = {
     'reduced_cifar': reduced_cifar,
     'modelnet': modelnet,
     'toxic': toxic_ds,
+    'bengali_r': bengali_r,
+    'bengali_c': bengali_c,
+    'bengali_v': bengali_v
 }
 
 dsmeta = {
@@ -223,5 +286,8 @@ dsmeta = {
     'reduced_cifar': {'classes': 10, 'nc': 3, 'size': (32, 32)},
     'modelnet': {'classes': 10, 'nc': None, 'size': None},
     'toxic': {'classes': None, 'nc': None, 'size': (-1, 1)},
+    'bengali_r': {'classes': 168, 'nc': 1, 'size': (64, 64)},
+    'bengali_c': {'classes': 7, 'nc': 1, 'size': (64, 64)},
+    'bengali_v': {'classes': 11, 'nc': 1, 'size': (64, 64)},
 }
 

@@ -6,3 +6,4 @@ torchbearer
 pandas
 pytorch-lightning
 tensorflow
+pyarrow
