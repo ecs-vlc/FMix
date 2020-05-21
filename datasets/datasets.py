@@ -186,8 +186,8 @@ def imagenet(args):
 
     root = '/ssd/ILSVRC2012' if args.dataset_path is None else args.dataset_path
 
-    trainset = data(root=root, transform=transform_train)
-    testset = data(root=root, transform=transform_test)
+    trainset = data(root=f'{root}/train', transform=transform_train)
+    testset = data(root=f'{root}/val', transform=transform_test)
 
     return trainset, testset
 

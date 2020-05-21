@@ -7,3 +7,8 @@ pandas
 pytorch-lightning
 tensorflow
 pyarrow
+spacy
+torchtext
+scipy
+sklearn
+tensorboardX
