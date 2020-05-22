@@ -16,7 +16,7 @@ class ImageNetHDF5(VisionDataset):
 
     def __getitem__(self, index):
         dest, i = self.dest[index]
-        with h5py.File(os.path.join(self.root, dest + '.hdf5')) as f:
+        with h5py.File(os.path.join(self.root, dest + '.hdf5'), 'r') as f:
             sample = f['data'][i]
 
         sample = Image.open(io.BytesIO(sample))
