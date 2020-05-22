@@ -3,6 +3,7 @@ from torchvision.transforms import Compose, Normalize, ToTensor, RandomCrop, Ran
     Resize, CenterCrop
 import os
 from datasets.tiny_imagenet import TinyImageNet
+from datasets.imagenet_hdf5 import ImageNetHDF5
 from utils import split, EqualSplitter, auto_augment, _fa_reduced_cifar10
 from datasets.toxic import toxic_ds
 from datasets.bengali import BengaliConsonantDiacritic, BengaliGraphemeRoot, BengaliVowelDiacritic
@@ -134,6 +135,7 @@ dstransforms = {
     'fashion': fashion_transforms,
     'tinyimagenet': tinyimagenet_transforms,
     'imagenet': imagenet_transforms,
+    'imagenet_hdf5': imagenet_transforms,
     'commands': commands_transforms,
     'modelnet': modelnet_transforms,
     'bengali_r': bengali_transforms,
@@ -182,6 +184,19 @@ def fashion(args):
 @split
 def imagenet(args):
     data = ImageFolder
+    transform_train, transform_test = dstransforms[args.dataset](args)
+
+    root = '/ssd/ILSVRC2012' if args.dataset_path is None else args.dataset_path
+
+    trainset = data(root=f'{root}/train', transform=transform_train)
+    testset = data(root=f'{root}/val', transform=transform_test)
+
+    return trainset, testset
+
+
+@split
+def imagenet_hdf5(args):
+    data = ImageNetHDF5
     transform_train, transform_test = dstransforms[args.dataset](args)
 
     root = '/ssd/ILSVRC2012' if args.dataset_path is None else args.dataset_path
@@ -265,6 +280,7 @@ ds = {
     'fashion': fashion,
     'fashion_old': fashion,
     'imagenet': imagenet,
+    'imagenet_hdf5': imagenet_hdf5,
     'commands': commands,
     'tinyimagenet': tinyimagenet,
     'reduced_cifar': reduced_cifar,
@@ -281,6 +297,7 @@ dsmeta = {
     'fashion': {'classes': 10, 'nc': 1, 'size': (28, 28)},
     'fashion_old': {'classes': 10, 'nc': 1, 'size': (28, 28)},
     'imagenet': {'classes': 1000, 'nc': 3, 'size': (224, 224)},
+    'imagenet_hdf5': {'classes': 1000, 'nc': 3, 'size': (224, 224)},
     'commands': {'classes': 12, 'nc': 1, 'size': (32, 32)},
     'tinyimagenet': {'classes': 200, 'nc': 3, 'size': (64, 64)},
     'reduced_cifar': {'classes': 10, 'nc': 3, 'size': (32, 32)},
