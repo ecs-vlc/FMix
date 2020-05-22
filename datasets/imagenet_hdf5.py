@@ -20,6 +20,7 @@ class ImageNetHDF5(VisionDataset):
             sample = f['data'][i]
 
         sample = Image.open(io.BytesIO(sample))
+        sample = sample.convert('RGB')
 
         if self.transform is not None:
             sample = self.transform(sample)
