@@ -22,7 +22,7 @@ for subdir in subdirs:
     from_dir = os.path.join(imagenet_dir, subdir)
     to_path = os.path.join(target_dir, subdir + '.hdf5')
 
-    paths = os.listdir(from_dir)
+    paths = [os.path.join(from_dir, d) for d in os.listdir(from_dir)]
 
     arr = np.array(pool.map(process.process, paths), dtype='uint8')
     with h5py.File(to_path, 'w') as f:
