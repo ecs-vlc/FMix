@@ -2,8 +2,9 @@ import numpy as np
 import h5py
 import multiprocessing
 import os
-from PIL import Image
+# from PIL import Image
 import pickle
+import process
 
 SIZE = 256
 
@@ -15,14 +16,6 @@ subdirs = [d for d in os.listdir(imagenet_dir) if os.path.isdir(os.path.join(ima
 num_cpus = multiprocessing.cpu_count()
 pool = multiprocessing.Pool(num_cpus)
 
-
-def process(path):
-    with open(path, 'rb') as f:
-        img = Image.open(f)
-        img = img.convert('RGB')
-        return img.resize((SIZE, SIZE), Image.BILINEAR)
-
-
 dest_list = []
 
 for subdir in subdirs:
@@ -31,7 +24,7 @@ for subdir in subdirs:
 
     paths = os.listdir(from_dir)
 
-    arr = np.array(pool.map(process, paths), dtype='uint8')
+    arr = np.array(pool.map(process.process, paths), dtype='uint8')
     with h5py.File(to_path, 'w') as f:
         f['data'] = arr
 
