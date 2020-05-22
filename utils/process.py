@@ -9,3 +9,8 @@ def process(path):
         img = Image.open(f)
         img = img.convert('RGB')
         return np.array(img.resize((SIZE, SIZE), Image.BILINEAR))
+
+
+def read_bytes(path):
+    f = open(path, 'rb')
+    return f.read()

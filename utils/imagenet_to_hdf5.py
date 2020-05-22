@@ -24,9 +24,13 @@ for subdir in subdirs:
 
     paths = [os.path.join(from_dir, d) for d in os.listdir(from_dir)]
 
-    arr = np.array(pool.map(process.process, paths), dtype='uint8')
+    # arr = np.array(pool.map(process.process, paths), dtype='uint8')
+    images = pool.map(process.read_bytes, paths)
     with h5py.File(to_path, 'w') as f:
-        f['data'] = arr
+        dt = h5py.special_dtype(vlen=np.dtype('uint8'))
+        dset = f.create_dataset('data', (len(paths), ), dtype=dt)
+        for i, image in enumerate(images):
+            dset[i] = np.fromstring(image, dtype='uint8')
 
     for i, path in enumerate(paths):
         dest_list.append((subdir, i))
