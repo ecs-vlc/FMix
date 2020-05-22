@@ -3,6 +3,7 @@ import h5py
 import multiprocessing
 import os
 from PIL import Image
+import pickle
 
 SIZE = 256
 
@@ -38,3 +39,5 @@ for subdir in subdirs:
         dest_list.append((subdir, i))
 
     print(subdir)
+
+pickle.dump(dest_list, open(os.path.join(target_dir, 'dest.p'), 'wb'))
