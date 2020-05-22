@@ -9,7 +9,7 @@ import process
 SIZE = 256
 
 imagenet_dir = '/ssd/ILSVRC2012/train'
-target_dir = '/ssd/imagenet_hdf5/train'
+target_dir = '/data/imagenet_hdf5/train'
 
 subdirs = [d for d in os.listdir(imagenet_dir) if os.path.isdir(os.path.join(imagenet_dir, d))]
 
