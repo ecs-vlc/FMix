@@ -150,9 +150,16 @@ elif args.dataset == 'toxic':
 else:
     criterion = nn.CrossEntropyLoss()
 
+metrics_append = []
+if 'bengali' in args.dataset:
+    from utils.macro_recall import MacroRecall
+    metrics_append = [MacroRecall()]
+elif 'imagenet' in args.dataset:
+    metrics_append = ['top_5_acc']
+
 # from torchbearer.metrics.roc_auc_score import RocAucScore
 print('==> Training model..')
-trial = Trial(net, optimizer, criterion, metrics=['acc', 'loss', 'lr'], callbacks=cb)
+trial = Trial(net, optimizer, criterion, metrics=['acc', 'loss', 'lr'] + metrics_append, callbacks=cb)
 trial.with_generators(train_generator=trainloader, val_generator=valloader, train_steps=args.train_steps, test_generator=testloader).to(args.device)
 
 if args.reload:
