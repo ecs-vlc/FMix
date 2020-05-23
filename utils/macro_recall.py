@@ -7,4 +7,7 @@ class MacroRecall(EpochLambda):
     def __init__(self):
         from sklearn import metrics
 
-        super(MacroRecall, self).__init__('macro_recall', lambda y_pred, y_true: metrics.recall_score(y_true.cpu().numpy(), y_pred.detach().cpu().numpy(), average='macro'))
+        def process(y_pred):
+            return y_pred.max(1)[1]
+
+        super().__init__('macro_recall', lambda y_pred, y_true: metrics.recall_score(y_true.cpu().numpy(), process(y_pred).detach().cpu().numpy(), average='macro'))
