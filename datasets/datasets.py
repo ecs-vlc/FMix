@@ -6,6 +6,7 @@ from datasets.tiny_imagenet import TinyImageNet
 from datasets.imagenet_hdf5 import ImageNetHDF5
 from utils import split, EqualSplitter, auto_augment, _fa_reduced_cifar10
 from datasets.toxic import toxic_ds
+from datasets.toxic_bert import toxic_bert
 from datasets.bengali import BengaliConsonantDiacritic, BengaliGraphemeRoot, BengaliVowelDiacritic
 
 
@@ -286,6 +287,7 @@ ds = {
     'reduced_cifar': reduced_cifar,
     'modelnet': modelnet,
     'toxic': toxic_ds,
+    'toxic_bert': toxic_bert,
     'bengali_r': bengali_r,
     'bengali_c': bengali_c,
     'bengali_v': bengali_v
@@ -302,7 +304,8 @@ dsmeta = {
     'tinyimagenet': {'classes': 200, 'nc': 3, 'size': (64, 64)},
     'reduced_cifar': {'classes': 10, 'nc': 3, 'size': (32, 32)},
     'modelnet': {'classes': 10, 'nc': None, 'size': None},
-    'toxic': {'classes': None, 'nc': None, 'size': (-1, 1)},
+    'toxic': {'classes': 6, 'nc': 300, 'size': [-1]},
+    'toxic_bert': {'classes': 6, 'nc': None, 'size': [-1]},
     'bengali_r': {'classes': 168, 'nc': 1, 'size': (64, 64)},
     'bengali_c': {'classes': 7, 'nc': 1, 'size': (64, 64)},
     'bengali_v': {'classes': 11, 'nc': 1, 'size': (64, 64)},

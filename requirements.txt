@@ -10,5 +10,6 @@ pyarrow
 spacy
 torchtext
 scipy
-sklearn
+scikit-learn
 tensorboardX
+transformers

@@ -23,7 +23,7 @@ from datasets.toxic import ToxicHelper
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--dataset', type=str, default='cifar10',
                     choices=['cifar10', 'cifar100', 'reduced_cifar', 'fashion', 'imagenet', 'imagenet_hdf5', 'tinyimagenet',
-                             'commands', 'modelnet', 'toxic', 'bengali_r', 'bengali_c', 'bengali_v'])
+                             'commands', 'modelnet', 'toxic', 'toxic_bert', 'bengali_r', 'bengali_c', 'bengali_v'])
 parser.add_argument('--dataset-path', type=str, default=None, help='Optional dataset path')
 parser.add_argument('--split-fraction', type=float, default=1., help='Fraction of total data to train on for reduced_cifar dataset')
 parser.add_argument('--pointcloud-resolution', default=128, type=int, help='Resolution of pointclouds in modelnet dataset')
@@ -83,9 +83,9 @@ classes, nc, size = meta['classes'], meta['nc'], meta['size']
 trainset, valset, testset = data(args)
 
 # Toxic comments uses its own data loaders
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if not args.dataset == 'toxic' else trainset
-valloader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if not args.dataset == 'toxic' else valset
-testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if not args.dataset == 'toxic' else testset
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if not ('toxic' in args.dataset) else trainset
+valloader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if (valset is not None) and ('toxic' not in args.dataset) else valset
+testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if not ('toxic' in args.dataset) else testset
 
 
 
@@ -93,6 +93,9 @@ print('==> Building model..')
 net = get_model(args, classes, nc)
 net = nn.DataParallel(net) if args.parallel else net
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
+
+if ('toxic' in args.dataset) or ('modelnet' in args.dataset):
+    optimizer = optim.Adam(net.parameters(), lr=args.lr)
 
 
 print('==> Setting up callbacks..')
@@ -143,9 +146,9 @@ cb.append(cutmix_reformat) if args.msda_mode == 'cutmix' else []
 
 # FMix loss is equivalent to mixup loss and works for all msda in torchbearer
 if args.msda_mode not in [None, 'None']:
-    bce = True if args.dataset == 'toxic' else False
+    bce = True if ('toxic' in args.dataset) else False
     criterion = modes['fmix'].loss(bce)
-elif args.dataset == 'toxic':
+elif 'toxic' in args.dataset:
     criterion = nn.BCEWithLogitsLoss()
 else:
     criterion = nn.CrossEntropyLoss()
@@ -156,8 +159,19 @@ if 'bengali' in args.dataset:
     metrics_append = [MacroRecall()]
 elif 'imagenet' in args.dataset:
     metrics_append = ['top_5_acc']
+elif 'toxic' in args.dataset:
+    from torchbearer.metrics import to_dict, EpochLambda
 
-# from torchbearer.metrics.roc_auc_score import RocAucScore
+    @to_dict
+    class RocAucScore(EpochLambda):
+        def __init__(self):
+            import sklearn.metrics
+
+            super().__init__('roc_auc_score',
+                             lambda y_pred, y_true: sklearn.metrics.roc_auc_score(y_true.cpu().numpy(), y_pred.detach().sigmoid().cpu().numpy()),
+                             running=False)
+    metrics_append = [RocAucScore()]
+
 print('==> Training model..')
 trial = Trial(net, optimizer, criterion, metrics=['acc', 'loss', 'lr'] + metrics_append, callbacks=cb)
 trial.with_generators(train_generator=trainloader, val_generator=valloader, train_steps=args.train_steps, test_generator=testloader).to(args.device)

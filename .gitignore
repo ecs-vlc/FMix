@@ -137,3 +137,4 @@ saved_models/
 logs/
 notebooks/*
 !notebooks/*.ipynb
+.vector_cache

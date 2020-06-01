@@ -73,6 +73,9 @@ class FMix(FMixBase, Callback):
         index = torch.randperm(x.size(0)).to(x.device)
         mask = torch.from_numpy(mask).float().to(x.device)
 
+        if len(self.size) == 1 and x.ndim == 3:
+            mask = mask.unsqueeze(2)
+
         # Mix the images
         x1 = mask * x
         x2 = (1 - mask) * x[index]
