@@ -40,7 +40,10 @@ class LSTM(nn.Module):
         max_pool = F.adaptive_max_pool1d(rnn_out.permute(0, 2, 1), 1).view(embedded.size(0), -1)
         x = torch.cat([avg_pool, max_pool, rnn_out[:, -1]], dim=1)
         x = self.layers(x)
-        return self.output(x)
+        res = self.output(x)
+        if res.size(1) == 1:
+            res = res.squeeze(1)
+        return res
 
     def init_hidden(self, batch_size):
         return torch.zeros((4, batch_size, self.hidden_sz), device="cuda")

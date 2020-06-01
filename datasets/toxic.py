@@ -66,7 +66,7 @@ class BatchGenerator:
     def __iter__(self):
         for batch in self.dl:
             X = list(getattr(batch, self.x))
-            X[0] = X[0].permute(1, 0)
+            X = X[0].permute(1, 0)
             y = torch.transpose(torch.stack([getattr(batch, y) for y in self.yFields]), 0, 1)
             yield (X, y)
 
@@ -83,17 +83,11 @@ class ToxicHelper(Callback):
         state[torchbearer.MODEL].init_embedding(vectors, ntokens, state[torchbearer.DEVICE])
 
     def on_sample(self, state):
-        state[torchbearer.X], lengths = state[torchbearer.X]
         state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE].float()
 
         state[torchbearer.X] = state[torchbearer.MODEL].embed(state[torchbearer.X])
 
     def on_sample_validation(self, state):
-        state[torchbearer.X], lengths = state[torchbearer.X]
         state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE].float()
 
         state[torchbearer.X] = state[torchbearer.MODEL].embed(state[torchbearer.X])
-
-
-
-

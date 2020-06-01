@@ -1,3 +1,4 @@
+import torch
 from torchvision.datasets import CIFAR10, CIFAR100, FashionMNIST, ImageFolder, ImageNet
 from torchvision.transforms import Compose, Normalize, ToTensor, RandomCrop, RandomHorizontalFlip, RandomResizedCrop, \
     Resize, CenterCrop
@@ -51,6 +52,13 @@ def imagenet_transforms(args):
     transform_train = Compose(transform)
     transform_test = Compose([Resize(256), CenterCrop(224)] + base)
     return transform_train, transform_test
+
+
+def imagenet_a_transforms(args):
+    normalize = Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transform = Compose([Resize(256), CenterCrop(224), ToTensor(), normalize])
+
+    return transform
 
 
 def tinyimagenet_transforms(args):
@@ -137,6 +145,7 @@ dstransforms = {
     'tinyimagenet': tinyimagenet_transforms,
     'imagenet': imagenet_transforms,
     'imagenet_hdf5': imagenet_transforms,
+    'imagenet_a': imagenet_a_transforms,
     'commands': commands_transforms,
     'modelnet': modelnet_transforms,
     'bengali_r': bengali_transforms,
@@ -208,6 +217,15 @@ def imagenet_hdf5(args):
     return trainset, testset
 
 
+def imagenet_a(args):
+    data = ImageFolder
+    transform = dstransforms[args.dataset](args)
+    root = args.dataset_path
+    testset = data(root=f'{root}/', transform=transform)
+
+    return None, None, testset
+
+
 @split
 def tinyimagenet(args):
     data = TinyImageNet
@@ -275,6 +293,40 @@ def bengali_v(args):
     return trainset
 
 
+def imdb(args):
+    from torchtext import data, datasets
+
+    # class BatchGenerator:
+    #     def __init__(self, dl):
+    #         self.dl = dl
+    #
+    #     def __len__(self):
+    #         return len(self.dl)
+    #
+    #     def __iter__(self):
+    #         for X, y in self.dl:
+    #             X = X.permute(1, 0)
+    #             yield (X, y)
+
+    TEXT = data.Field(tokenize='spacy', batch_first=True)
+    LABEL = data.LabelField(dtype=torch.float)
+
+    train_data, test_data = datasets.IMDB.splits(TEXT, LABEL, root=args.dataset_path)
+
+    TEXT.build_vocab(train_data, vectors='fasttext.simple.300d')
+    LABEL.build_vocab(train_data)
+
+    train_iterator, test_iterator = data.BucketIterator.splits(
+        (train_data, test_data),
+        batch_size=args.batch_size,
+        sort_within_batch=True,
+        device=args.device)
+
+    train_iterator.vectors = TEXT.vocab.vectors.to(args.device)
+    train_iterator.ntokens = len(TEXT.vocab)
+    return train_iterator, None, test_iterator
+
+
 ds = {
     'cifar10': cifar,
     'cifar100': cifar,
@@ -282,6 +334,7 @@ ds = {
     'fashion_old': fashion,
     'imagenet': imagenet,
     'imagenet_hdf5': imagenet_hdf5,
+    'imagenet_a': imagenet_a,
     'commands': commands,
     'tinyimagenet': tinyimagenet,
     'reduced_cifar': reduced_cifar,
@@ -290,7 +343,8 @@ ds = {
     'toxic_bert': toxic_bert,
     'bengali_r': bengali_r,
     'bengali_c': bengali_c,
-    'bengali_v': bengali_v
+    'bengali_v': bengali_v,
+    'imdb': imdb
 }
 
 dsmeta = {
@@ -300,6 +354,7 @@ dsmeta = {
     'fashion_old': {'classes': 10, 'nc': 1, 'size': (28, 28)},
     'imagenet': {'classes': 1000, 'nc': 3, 'size': (224, 224)},
     'imagenet_hdf5': {'classes': 1000, 'nc': 3, 'size': (224, 224)},
+    'imagenet_a': {'classes': 1000, 'nc': 3, 'size': (224, 224)},
     'commands': {'classes': 12, 'nc': 1, 'size': (32, 32)},
     'tinyimagenet': {'classes': 200, 'nc': 3, 'size': (64, 64)},
     'reduced_cifar': {'classes': 10, 'nc': 3, 'size': (32, 32)},
@@ -309,5 +364,7 @@ dsmeta = {
     'bengali_r': {'classes': 168, 'nc': 1, 'size': (64, 64)},
     'bengali_c': {'classes': 7, 'nc': 1, 'size': (64, 64)},
     'bengali_v': {'classes': 11, 'nc': 1, 'size': (64, 64)},
+    'imdb': {'classes': 1, 'nc': 300, 'size': [-1]},
 }
 
+nlp_data = ['toxic', 'toxic_bert', 'imdb']
