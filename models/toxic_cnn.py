@@ -44,4 +44,7 @@ class CNN(nn.Module):
         max_pool = F.adaptive_max_pool1d(x, 1).view(embedded.size(0), -1)
         x = torch.cat([avg_pool, max_pool, x.permute(0, 2, 1)[:, -1]], dim=1)
         x = self.layers(x)
-        return self.output(x)
+        res = self.output(x)
+        if res.size(1) == 1:
+            res = res.squeeze(1)
+        return res
