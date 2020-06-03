@@ -23,7 +23,7 @@ from datasets.toxic import ToxicHelper
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--dataset', type=str, default='cifar10',
                     choices=['cifar10', 'cifar100', 'reduced_cifar', 'fashion', 'imagenet', 'imagenet_hdf5', 'imagenet_a', 'tinyimagenet',
-                             'commands', 'modelnet', 'toxic', 'toxic_bert', 'bengali_r', 'bengali_c', 'bengali_v', 'imdb'])
+                             'commands', 'modelnet', 'toxic', 'toxic_bert', 'bengali_r', 'bengali_c', 'bengali_v', 'imdb', 'yelp_2'])
 parser.add_argument('--dataset-path', type=str, default=None, help='Optional dataset path')
 parser.add_argument('--split-fraction', type=float, default=1., help='Fraction of total data to train on for reduced_cifar dataset')
 parser.add_argument('--pointcloud-resolution', default=128, type=int, help='Resolution of pointclouds in modelnet dataset')
@@ -135,7 +135,7 @@ def cutmix_reformat(state):
 
 cb = [tboard, tboardtext, write_params, torchbearer.callbacks.MostRecent(args.model_file)]
 # Toxic helper needs to go before the msda to reshape the input
-cb.append(ToxicHelper()) if (args.dataset == 'toxic' or args.dataset == 'imdb') else []
+cb.append(ToxicHelper()) if (args.dataset in ['toxic', 'imdb', 'yelp_2']) else []
 cb.append(modes[mode]) if args.msda_mode not in [None, 'None'] else []
 cb.append(Cutout(1, args.cutout_l)) if args.cutout else []
 cb.append(RandomErase(1, args.cutout_l)) if args.random_erase else []

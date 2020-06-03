@@ -1,4 +1,5 @@
 import torch
+from torch.utils.data import Dataset
 from torchvision.datasets import CIFAR10, CIFAR100, FashionMNIST, ImageFolder, ImageNet
 from torchvision.transforms import Compose, Normalize, ToTensor, RandomCrop, RandomHorizontalFlip, RandomResizedCrop, \
     Resize, CenterCrop
@@ -296,18 +297,6 @@ def bengali_v(args):
 def imdb(args):
     from torchtext import data, datasets
 
-    # class BatchGenerator:
-    #     def __init__(self, dl):
-    #         self.dl = dl
-    #
-    #     def __len__(self):
-    #         return len(self.dl)
-    #
-    #     def __iter__(self):
-    #         for X, y in self.dl:
-    #             X = X.permute(1, 0)
-    #             yield (X, y)
-
     TEXT = data.Field(tokenize='spacy', batch_first=True)
     LABEL = data.LabelField(dtype=torch.float)
 
@@ -324,6 +313,40 @@ def imdb(args):
 
     train_iterator.vectors = TEXT.vocab.vectors.to(args.device)
     train_iterator.ntokens = len(TEXT.vocab)
+    return train_iterator, None, test_iterator
+
+
+def yelp_2(args):
+    from torchtext import datasets
+    from .toxic_bert import NoBatchBucketIterator
+
+    train_data, test_data = datasets.YelpReviewPolarity(root=args.dataset_path)
+
+    class ReverseOrder(Dataset):
+        def __init__(self, dataset):
+            self.dataset = dataset
+
+        def __getitem__(self, i):
+            res = self.dataset[i]
+            return res[1], torch.tensor(res[0])
+
+        def __len__(self):
+            return len(self.dataset)
+
+    train_data, test_data = ReverseOrder(train_data), ReverseOrder(test_data)
+
+    train_iterator = NoBatchBucketIterator(dataset=train_data, batch_size=args.batch_size,
+                                           sort_key=lambda x: x[0].size(0),
+                                           device=torch.device(args.device), sort_within_batch=True)
+    test_iterator = NoBatchBucketIterator(dataset=test_data, batch_size=args.batch_size,
+                                          sort_key=lambda x: x[0].size(0),
+                                          device=torch.device(args.device), sort_within_batch=True)
+
+    vocab = train_data.dataset.get_vocab()
+    vocab.load_vectors('fasttext.simple.300d')
+
+    train_iterator.vectors = vocab.vectors.to(args.device)
+    train_iterator.ntokens = len(vocab)
     return train_iterator, None, test_iterator
 
 
@@ -344,7 +367,8 @@ ds = {
     'bengali_r': bengali_r,
     'bengali_c': bengali_c,
     'bengali_v': bengali_v,
-    'imdb': imdb
+    'imdb': imdb,
+    'yelp_2': yelp_2
 }
 
 dsmeta = {
@@ -365,6 +389,7 @@ dsmeta = {
     'bengali_c': {'classes': 7, 'nc': 1, 'size': (64, 64)},
     'bengali_v': {'classes': 11, 'nc': 1, 'size': (64, 64)},
     'imdb': {'classes': 1, 'nc': 300, 'size': [-1]},
+    'yelp_2': {'classes': 1, 'nc': 300, 'size': [-1]},
 }
 
-nlp_data = ['toxic', 'toxic_bert', 'imdb']
+nlp_data = ['toxic', 'toxic_bert', 'imdb', 'sst_2']
