@@ -392,4 +392,4 @@ dsmeta = {
     'yelp_2': {'classes': 1, 'nc': 300, 'size': [-1]},
 }
 
-nlp_data = ['toxic', 'toxic_bert', 'imdb', 'sst_2']
+nlp_data = ['toxic', 'toxic_bert', 'imdb', 'yelp_2']
