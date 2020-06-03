@@ -87,8 +87,6 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, 
 valloader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if (valset is not None) and (args.dataset not in nlp_data) else valset
 testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers) if (args.dataset not in nlp_data) else testset
 
-
-
 print('==> Building model..')
 net = get_model(args, classes, nc)
 net = nn.DataParallel(net) if args.parallel else net
@@ -180,11 +178,6 @@ if args.dataset == 'imagenet_a':
         state[torchbearer.PREDICTION] = state[torchbearer.PREDICTION][:, indices_in_1k]
     cb.append(map_preds)
 
-# if args.reload:
-#     state = torch.load(args.model_file)
-#     if not isinstance(state, dict):
-#         net.load_state_dict(state)
-
 print('==> Training model..')
 
 acc = 'acc'
@@ -196,7 +189,6 @@ trial.with_generators(train_generator=trainloader, val_generator=valloader, trai
 
 if args.reload:
     state = torch.load(args.model_file)
-    # if isinstance(state, dict):
     trial.load_state_dict(state, resume=args.dataset != 'imagenet_a')
     trial.replay()
 

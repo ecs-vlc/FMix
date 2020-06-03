@@ -6,3 +6,4 @@ from .senet import se_resnext50_32x4d
 from .toxic_lstm import LSTM
 from .toxic_cnn import CNN
 from .bert import Bert
+from .dpcnn import DPCNN
