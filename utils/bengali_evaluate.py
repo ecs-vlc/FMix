@@ -40,6 +40,9 @@ class BengaliModelWrapper(nn.Module):
 @metrics.default_for_key('grapheme')
 @metrics.mean
 class GraphemeAccuracy(metrics.Metric):
+    def __init__(self):
+        super(GraphemeAccuracy, self).__init__('grapheme_acc')
+        
     def process(self, *args):
         state = args[0]
         r_pred, v_pred, c_pred = state[torchbearer.PREDICTION]
@@ -62,5 +65,5 @@ model_c.load_state_dict(torch.load(args.model_c, map_location='cpu')[torchbearer
 
 model = BengaliModelWrapper(model_r, model_v, model_c)
 
-trial = Trial(model, metrics=['bengali']).with_test_generator(testloader).to('cuda')
+trial = Trial(model, metrics=['grapheme']).with_test_generator(testloader).to('cuda')
 trial.evaluate(torchbearer.TEST_DATA)
