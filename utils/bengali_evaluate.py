@@ -66,4 +66,4 @@ model_c.load_state_dict(torch.load(args.model_c, map_location='cpu')[torchbearer
 model = BengaliModelWrapper(model_r, model_v, model_c)
 
 trial = Trial(model, metrics=['grapheme']).with_test_generator(testloader).to('cuda')
-trial.evaluate(torchbearer.TEST_DATA)
+trial.evaluate(data_key=torchbearer.TEST_DATA)
