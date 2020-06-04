@@ -8,6 +8,7 @@ from models import se_resnext50_32x4d
 
 parser = argparse.ArgumentParser(description='Bengali Evaluate')
 
+parser.add_argument('--dataset', type=str, default='bengali', help='Optional dataset path')
 parser.add_argument('--dataset-path', type=str, default=None, help='Optional dataset path')
 parser.add_argument('--fold-path', type=str, default='./data/folds.npz', help='Path to object storing fold ids. Run-id 0 will regen this if not existing')
 parser.add_argument('--fold', type=str, default='test', help='One of [1, ..., n] or "test"')
