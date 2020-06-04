@@ -55,11 +55,11 @@ model_r = se_resnext50_32x4d(168, 1)
 model_v = se_resnext50_32x4d(11, 1)
 model_c = se_resnext50_32x4d(7, 1)
 
-model_r.load_state_dict(torch.load(args.model_r)[torchbearer.MODEL])
-model_v.load_state_dict(torch.load(args.model_v)[torchbearer.MODEL])
-model_c.load_state_dict(torch.load(args.model_c)[torchbearer.MODEL])
+model_r.load_state_dict(torch.load(args.model_r, map_location='cpu')[torchbearer.MODEL])
+model_v.load_state_dict(torch.load(args.model_v, map_location='cpu')[torchbearer.MODEL])
+model_c.load_state_dict(torch.load(args.model_c, map_location='cpu')[torchbearer.MODEL])
 
 model = BengaliModelWrapper(model_r, model_v, model_c)
 
-trial = Trial(model, metrics=['bengali']).with_test_generator(testloader)
+trial = Trial(model, metrics=['bengali']).with_test_generator(testloader).to('cuda')
 trial.evaluate(torchbearer.TEST_DATA)
