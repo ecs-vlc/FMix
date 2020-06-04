@@ -52,7 +52,10 @@ class GraphemeAccuracy(metrics.Metric):
         _, v_pred = torch.max(v_pred, 1)
         _, c_pred = torch.max(c_pred, 1)
 
-        return ((r_pred == r_true) and (v_pred == v_true) and (c_pred == c_true)).float()
+        r = (r_pred == r_true)
+        v = (v_pred == v_true)
+        c = (c_pred == c_true)
+        return torch.stack((r, v, c), dim=1).all(1).float()
 
 
 model_r = se_resnext50_32x4d(168, 1)
@@ -65,5 +68,5 @@ model_c.load_state_dict(torch.load(args.model_c, map_location='cpu')[torchbearer
 
 model = BengaliModelWrapper(model_r, model_v, model_c)
 
-trial = Trial(model, metrics=['grapheme']).with_test_generator(testloader).to('cuda')
+trial = Trial(model, criterion=lambda state: None, metrics=['grapheme']).with_test_generator(testloader).to('cuda')
 trial.evaluate(data_key=torchbearer.TEST_DATA)
