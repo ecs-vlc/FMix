@@ -9,7 +9,7 @@ from datasets.imagenet_hdf5 import ImageNetHDF5
 from utils import split, EqualSplitter, auto_augment, _fa_reduced_cifar10
 from datasets.toxic import toxic_ds
 from datasets.toxic_bert import toxic_bert
-from datasets.bengali import BengaliConsonantDiacritic, BengaliGraphemeRoot, BengaliVowelDiacritic
+from datasets.bengali import BengaliConsonantDiacritic, BengaliGraphemeRoot, BengaliVowelDiacritic, BengaliGraphemeWhole
 
 
 @auto_augment(_fa_reduced_cifar10)
@@ -151,7 +151,8 @@ dstransforms = {
     'modelnet': modelnet_transforms,
     'bengali_r': bengali_transforms,
     'bengali_c': bengali_transforms,
-    'bengali_v': bengali_transforms
+    'bengali_v': bengali_transforms,
+    'bengali': bengali_transforms
 }
 
 
@@ -294,6 +295,16 @@ def bengali_v(args):
     return trainset
 
 
+@split
+def bengali(args):
+    transform_train = dstransforms[args.dataset](args)
+
+    root = '/ssd/bengali' if args.dataset_path is None else args.dataset_path
+
+    trainset = BengaliGraphemeWhole(root=root, transform=transform_train)
+    return trainset
+
+
 def imdb(args):
     from torchtext import data, datasets
 
@@ -367,6 +378,7 @@ ds = {
     'bengali_r': bengali_r,
     'bengali_c': bengali_c,
     'bengali_v': bengali_v,
+    'bengali': bengali,
     'imdb': imdb,
     'yelp_2': yelp_2
 }
@@ -388,6 +400,7 @@ dsmeta = {
     'bengali_r': {'classes': 168, 'nc': 1, 'size': (64, 64)},
     'bengali_c': {'classes': 7, 'nc': 1, 'size': (64, 64)},
     'bengali_v': {'classes': 11, 'nc': 1, 'size': (64, 64)},
+    'bengali': {'classes': (168, 11, 7), 'nc': 1, 'size': (64, 64)},
     'imdb': {'classes': 1, 'nc': 300, 'size': [-1]},
     'yelp_2': {'classes': 1, 'nc': 300, 'size': [-1]},
 }

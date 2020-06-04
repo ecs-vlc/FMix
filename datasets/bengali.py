@@ -30,7 +30,10 @@ class Bengali(Dataset):
     def __init__(self, root, targets, transform=None):
         self.transform = transform
 
-        self.labels = pd.read_csv(f'{root}/train.csv')[targets]
+        if isinstance(targets, list):
+            self.labels = list(pd.read_csv(f'{root}/train.csv')[targets].itertuples(index=False, name=None))
+        else:
+            self.labels = pd.read_csv(f'{root}/train.csv')[targets]
         self.images = prepare_image(root)
 
     def __getitem__(self, index):
@@ -44,6 +47,11 @@ class Bengali(Dataset):
 
     def __len__(self) -> int:
         return len(self.labels)
+
+
+class BengaliGraphemeWhole(Bengali):
+    def __init__(self, root, transform=None):
+        super().__init__(root, ['grapheme_root', 'vowel_diacritic', 'consonant_diacritic'], transform=transform)
 
 
 class BengaliGraphemeRoot(Bengali):
