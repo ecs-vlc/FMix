@@ -41,7 +41,7 @@ class BengaliModelWrapper(nn.Module):
 @metrics.mean
 class GraphemeAccuracy(metrics.Metric):
     def __init__(self):
-        super(GraphemeAccuracy, self).__init__('grapheme_acc')
+        super().__init__('grapheme_acc')
         
     def process(self, *args):
         state = args[0]
