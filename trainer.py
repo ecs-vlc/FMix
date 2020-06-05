@@ -23,7 +23,7 @@ from datasets.toxic import ToxicHelper
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--dataset', type=str, default='cifar10',
                     choices=['cifar10', 'cifar100', 'reduced_cifar', 'fashion', 'imagenet', 'imagenet_hdf5', 'imagenet_a', 'tinyimagenet',
-                             'commands', 'modelnet', 'toxic', 'toxic_bert', 'bengali_r', 'bengali_c', 'bengali_v', 'imdb', 'yelp_2'])
+                             'commands', 'modelnet', 'toxic', 'toxic_bert', 'bengali_r', 'bengali_c', 'bengali_v', 'imdb', 'yelp_2', 'yelp_5'])
 parser.add_argument('--dataset-path', type=str, default=None, help='Optional dataset path')
 parser.add_argument('--split-fraction', type=float, default=1., help='Fraction of total data to train on for reduced_cifar dataset')
 parser.add_argument('--pointcloud-resolution', default=128, type=int, help='Resolution of pointclouds in modelnet dataset')
@@ -133,7 +133,7 @@ def cutmix_reformat(state):
 
 cb = [tboard, tboardtext, write_params, torchbearer.callbacks.MostRecent(args.model_file)]
 # Toxic helper needs to go before the msda to reshape the input
-cb.append(ToxicHelper()) if (args.dataset in ['toxic', 'imdb', 'yelp_2']) else []
+cb.append(ToxicHelper()) if (args.dataset in ['toxic', 'imdb', 'yelp_2', 'yelp_5']) else []
 cb.append(modes[mode]) if args.msda_mode not in [None, 'None'] else []
 cb.append(Cutout(1, args.cutout_l)) if args.cutout else []
 cb.append(RandomErase(1, args.cutout_l)) if args.random_erase else []
@@ -144,9 +144,9 @@ cb.append(cutmix_reformat) if args.msda_mode == 'cutmix' else []
 
 # FMix loss is equivalent to mixup loss and works for all msda in torchbearer
 if args.msda_mode not in [None, 'None']:
-    bce = True if (args.dataset in nlp_data) else False
+    bce = True if (args.dataset in ['toxic', 'toxic_bert', 'imdb', 'yelp_2']) else False
     criterion = modes['fmix'].loss(bce)
-elif args.dataset in nlp_data:
+elif args.dataset in ['toxic', 'toxic_bert', 'imdb', 'yelp_2']:
     criterion = nn.BCEWithLogitsLoss()
 else:
     criterion = nn.CrossEntropyLoss()
@@ -181,7 +181,7 @@ if args.dataset == 'imagenet_a':
 print('==> Training model..')
 
 acc = 'acc'
-if args.dataset in nlp_data:
+if args.dataset in ['toxic', 'toxic_bert', 'imdb', 'yelp_2']:
     acc = 'binary_acc'
 
 trial = Trial(net, optimizer, criterion, metrics=[acc, 'loss', 'lr'] + metrics_append, callbacks=cb)

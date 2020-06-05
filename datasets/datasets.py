@@ -327,23 +327,46 @@ def imdb(args):
     return train_iterator, None, test_iterator
 
 
+class ReverseOrder(Dataset):
+    def __init__(self, dataset):
+        self.dataset = dataset
+
+    def __getitem__(self, i):
+        res = self.dataset[i]
+        # print(res)
+        return res[1], torch.tensor(res[0]).long()
+
+    def __len__(self):
+        return len(self.dataset)
+
+
 def yelp_2(args):
     from torchtext import datasets
     from .toxic_bert import NoBatchBucketIterator
 
     train_data, test_data = datasets.YelpReviewPolarity(root=args.dataset_path)
+    train_data, test_data = ReverseOrder(train_data), ReverseOrder(test_data)
 
-    class ReverseOrder(Dataset):
-        def __init__(self, dataset):
-            self.dataset = dataset
+    train_iterator = NoBatchBucketIterator(dataset=train_data, batch_size=args.batch_size,
+                                           sort_key=lambda x: x[0].size(0),
+                                           device=torch.device(args.device), sort_within_batch=True)
+    test_iterator = NoBatchBucketIterator(dataset=test_data, batch_size=args.batch_size,
+                                          sort_key=lambda x: x[0].size(0),
+                                          device=torch.device(args.device), sort_within_batch=True)
 
-        def __getitem__(self, i):
-            res = self.dataset[i]
-            return res[1], torch.tensor(res[0])
+    vocab = train_data.dataset.get_vocab()
+    vocab.load_vectors('fasttext.simple.300d')
 
-        def __len__(self):
-            return len(self.dataset)
+    train_iterator.vectors = vocab.vectors.to(args.device)
+    train_iterator.ntokens = len(vocab)
+    return train_iterator, None, test_iterator
 
+
+def yelp_5(args):
+    from torchtext import datasets
+    from .toxic_bert import NoBatchBucketIterator
+
+    train_data, test_data = datasets.YelpReviewFull(root=args.dataset_path)
     train_data, test_data = ReverseOrder(train_data), ReverseOrder(test_data)
 
     train_iterator = NoBatchBucketIterator(dataset=train_data, batch_size=args.batch_size,
@@ -380,7 +403,8 @@ ds = {
     'bengali_v': bengali_v,
     'bengali': bengali,
     'imdb': imdb,
-    'yelp_2': yelp_2
+    'yelp_2': yelp_2,
+    'yelp_5': yelp_5
 }
 
 dsmeta = {
@@ -403,6 +427,7 @@ dsmeta = {
     'bengali': {'classes': (168, 11, 7), 'nc': 1, 'size': (64, 64)},
     'imdb': {'classes': 1, 'nc': 300, 'size': [-1]},
     'yelp_2': {'classes': 1, 'nc': 300, 'size': [-1]},
+    'yelp_5': {'classes': 5, 'nc': 300, 'size': [-1]},
 }
 
-nlp_data = ['toxic', 'toxic_bert', 'imdb', 'yelp_2']
+nlp_data = ['toxic', 'toxic_bert', 'imdb', 'yelp_2', 'yelp_5']

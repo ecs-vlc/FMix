@@ -83,11 +83,11 @@ class ToxicHelper(Callback):
         state[torchbearer.MODEL].init_embedding(vectors, ntokens, state[torchbearer.DEVICE])
 
     def on_sample(self, state):
-        state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE].float()
+        state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE]  # .float()
 
         state[torchbearer.X] = state[torchbearer.MODEL].embed(state[torchbearer.X])
 
     def on_sample_validation(self, state):
-        state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE].float()
+        state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE]  # .float()
 
         state[torchbearer.X] = state[torchbearer.MODEL].embed(state[torchbearer.X])
