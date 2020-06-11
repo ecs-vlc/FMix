@@ -16,7 +16,6 @@ from models.models import get_model
 from utils import RMixup, MSDAAlternator, WarmupLR
 from datasets.toxic import ToxicHelper
 
-
 # Setup
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--dataset', type=str, default='cifar10',
