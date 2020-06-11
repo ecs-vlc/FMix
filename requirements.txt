@@ -6,3 +6,10 @@ torchbearer
 pandas
 pytorch-lightning
 tensorflow
+pyarrow
+spacy
+torchtext
+scipy
+scikit-learn
+tensorboardX
+transformers

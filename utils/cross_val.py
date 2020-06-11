@@ -29,10 +29,14 @@ def gen_folds(args, dataset, test_size):
 
 def split(func):
     def splitting(args):
-        trainset, testset = func(args)
+        try:
+            trainset, testset = func(args)
 
-        if args.fold == 'test':
-            return trainset, testset, testset
+            if args.fold == 'test':
+                return trainset, testset, testset
+        except:
+            trainset = func(args)
+            testset = None
 
         if args.run_id == 0 and not os.path.exists(args.fold_path):
             gen_folds(args, trainset, len(trainset) // args.n_folds)
@@ -46,6 +50,6 @@ def split(func):
         splitter.train_ids, splitter.valid_ids = train_ids, val_ids
 
         trainset, valset = splitter.get_train_dataset(trainset), splitter.get_val_dataset(trainset)
-        return trainset, valset, testset
+        return trainset, valset, (testset if testset is not None else valset)
 
     return splitting

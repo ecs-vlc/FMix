@@ -1,7 +1,7 @@
 import models
 from models import wrn
 import torchvision.models as m
-from models.toxic_lstm import LSTM
+# from models.toxic_lstm import LSTM
 
 
 def get_model(args, classes, nc):
@@ -21,8 +21,8 @@ def get_model(args, classes, nc):
         from kaolin.models.PointNet import PointNetClassifier
         return PointNetClassifier(num_classes=classes)
 
-    if args.dataset == 'toxic':
-        return LSTM()
+    # if args.dataset == 'toxic':
+    #     return LSTM()
 
     # Otherwise return models from other files
     return models.__dict__[args.model](num_classes=classes, nc=nc)
