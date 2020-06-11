@@ -14,7 +14,9 @@ class ImageNetHDF5(VisionDataset):
         self.dest = pickle.load(open(os.path.join(root, 'dest.p'), 'rb'))
         self.cache = {}
         self.cache_size = cache_size
-        self.targets = {f[:-5]: i for i, f in enumerate(filter(lambda f: '.hdf5' in f, os.listdir(root)))}
+
+        targets = sorted(list(filter(lambda f: '.hdf5' in f, os.listdir(root))))
+        self.targets = {f[:-5]: i for i, f in enumerate(targets)}
         self.fill_cache()
 
     def load(self, file, i):

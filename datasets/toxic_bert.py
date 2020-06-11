@@ -6,11 +6,11 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 from torchtext.data import Iterator, batch, pool
 from tqdm import tqdm
-from transformers import BertTokenizer
 
 
 class ToxicDataset(Dataset):
     def __init__(self, dataframe, bert_model='bert-base-cased'):
+        from transformers import BertTokenizer
         self.tokenizer = BertTokenizer.from_pretrained(bert_model)
         self.pad_idx = self.tokenizer.pad_token_id
 

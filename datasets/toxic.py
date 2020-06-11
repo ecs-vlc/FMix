@@ -5,6 +5,9 @@ import pandas as pd
 import os
 import torch
 
+from torchbearer import Callback
+import torchbearer
+
 
 def toxic_ds(args):
     from torchtext import data
@@ -24,7 +27,6 @@ def toxic_ds(args):
                   ("obscene", LABEL), ("insult", LABEL), ("identity_hate", LABEL)]
     trainset_path = os.path.join(args.dataset_path, 'train.csv')
     train = data.TabularDataset(path=trainset_path, format='csv', fields=dataFields, skip_header=True)
-    # train, val = dataset.split()
 
     TEXT.build_vocab(train, vectors='fasttext.simple.300d')
     traindl = torchtext.data.BucketIterator(dataset=train, batch_size=args.batch_size,
@@ -46,7 +48,7 @@ def toxic_ds(args):
     testdl = torchtext.data.BucketIterator(dataset=testset, batch_size=64, sort_key=lambda x: len(x.comment_text),
                                            device=torch.device(args.device), sort_within_batch=True)
     vectors = train.fields['comment_text'].vocab.vectors.to(args.device)
-    # traindl, valdl, testdl = BatchGenerator(traindl), BatchGenerator(valdl), BatchGenerator(testdl)
+
     traindl, testdl = BatchGenerator(traindl), BatchGenerator(testdl)
     traindl.vectors = vectors
     traindl.ntokens = len(TEXT.vocab)
@@ -71,11 +73,10 @@ class BatchGenerator:
             yield (X, y)
 
 
-from torchbearer import Callback
-import torchbearer
-
-
 class ToxicHelper(Callback):
+    def __init__(self, to_float=True):
+        self.convert = (lambda x: x.float()) if to_float else (lambda x: x)
+
     def on_start(self, state):
         super().on_start(state)
         vectors = state[torchbearer.TRAIN_GENERATOR].vectors
@@ -83,11 +84,11 @@ class ToxicHelper(Callback):
         state[torchbearer.MODEL].init_embedding(vectors, ntokens, state[torchbearer.DEVICE])
 
     def on_sample(self, state):
-        state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE]  # .float()
+        state[torchbearer.Y_TRUE] = self.convert(state[torchbearer.Y_TRUE])
 
         state[torchbearer.X] = state[torchbearer.MODEL].embed(state[torchbearer.X])
 
     def on_sample_validation(self, state):
-        state[torchbearer.Y_TRUE] = state[torchbearer.Y_TRUE]  # .float()
+        state[torchbearer.Y_TRUE] = self.convert(state[torchbearer.Y_TRUE])
 
         state[torchbearer.X] = state[torchbearer.MODEL].embed(state[torchbearer.X])

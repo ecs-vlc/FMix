@@ -133,7 +133,7 @@ def cutmix_reformat(state):
 
 cb = [tboard, tboardtext, write_params, torchbearer.callbacks.MostRecent(args.model_file)]
 # Toxic helper needs to go before the msda to reshape the input
-cb.append(ToxicHelper()) if (args.dataset in ['toxic', 'imdb', 'yelp_2', 'yelp_5']) else []
+cb.append(ToxicHelper(to_float=args.dataset != 'yelp_5')) if (args.dataset in ['toxic', 'imdb', 'yelp_2', 'yelp_5']) else []
 cb.append(modes[mode]) if args.msda_mode not in [None, 'None'] else []
 cb.append(Cutout(1, args.cutout_l)) if args.cutout else []
 cb.append(RandomErase(1, args.cutout_l)) if args.random_erase else []

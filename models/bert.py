@@ -1,11 +1,11 @@
 import torch
 from torch import nn
-from transformers import BertModel
 
 
 class Bert(nn.Module):
     def __init__(self, num_classes, nc=None, bert_model='bert-base-cased'):
         super().__init__()
+        from transformers import BertModel
         self.bert = BertModel.from_pretrained(bert_model, output_hidden_states=True)
         self.classifier = nn.Linear(self.bert.config.hidden_size, num_classes)
 
