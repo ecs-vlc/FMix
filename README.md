@@ -2,7 +2,7 @@
   
 # FMix
 
-This repository contains the __official__ implementation of the paper ['Understanding and Enhancing Mixed Sample Data Augmentation'](https://arxiv.org/abs/2002.12047)
+This repository contains the __official__ implementation of the paper ['FMix: Enhancing Mixed Sampled Data Augmentation'](https://arxiv.org/abs/2002.12047)
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/understanding-and-enhancing-mixed-sample-data/image-classification-on-cifar-10)](https://paperswithcode.com/sota/image-classification-on-cifar-10?p=understanding-and-enhancing-mixed-sample-data)
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/understanding-and-enhancing-mixed-sample-data/image-classification-on-fashion-mnist)](https://paperswithcode.com/sota/image-classification-on-fashion-mnist?p=understanding-and-enhancing-mixed-sample-data)
@@ -26,7 +26,7 @@ Dive in with our example notebook in Colab!
 
 ## About
 
-FMix is a variant of MixUp, CutMix, etc. introduced in our paper ['Understanding and Enhancing Mixed Sample Data Augmentation'](https://arxiv.org/abs/2002.12047). It uses masks sampled from Fourier space to mix training examples. Take a look at our [example notebook in colab](https://colab.research.google.com/github/ecs-vlc/fmix/blob/master/notebooks/example_masks.ipynb) which shows how you can generate masks in two dimensions
+FMix is a variant of MixUp, CutMix, etc. introduced in our paper ['FMix: Enhancing Mixed Sampled Data Augmentation'](https://arxiv.org/abs/2002.12047). It uses masks sampled from Fourier space to mix training examples. Take a look at our [example notebook in colab](https://colab.research.google.com/github/ecs-vlc/fmix/blob/master/notebooks/example_masks.ipynb) which shows how you can generate masks in two dimensions
 
 <div align="center">
   <img src="./fmix_example.png", width="100%">
