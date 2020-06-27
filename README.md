@@ -29,13 +29,13 @@ Dive in with our example notebook in Colab!
 FMix is a variant of MixUp, CutMix, etc. introduced in our paper ['FMix: Enhancing Mixed Sampled Data Augmentation'](https://arxiv.org/abs/2002.12047). It uses masks sampled from Fourier space to mix training examples. Take a look at our [example notebook in colab](https://colab.research.google.com/github/ecs-vlc/fmix/blob/master/notebooks/example_masks.ipynb) which shows how you can generate masks in two dimensions
 
 <div align="center">
-  <img src="./fmix_example.png", width="100%">
+  <img src="./fmix_example.png", width="80%">
 </div>
 
 and in three!
 
 <div align="center">
-  <img src="./fmix_3d.gif", width="40%">
+  <img src="./fmix_3d.gif", width="30%">
 </div>
 
 ## Experiments
