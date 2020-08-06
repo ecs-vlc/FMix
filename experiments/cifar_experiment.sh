@@ -47,6 +47,7 @@ then
     model=aa_PyramidNet
     epoch=1800
     schedule=2000
+    bs=64
     cosine=True
 fi
 
