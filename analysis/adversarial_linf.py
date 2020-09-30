@@ -36,7 +36,7 @@ test_transform = transforms.Compose([
 
 # load data
 testset = CIFAR10(".", train=False, download=True, transform=test_transform)
-testloader = DataLoader(testset, batch_size=750, shuffle=False)
+testloader = DataLoader(testset, batch_size=750, shuffle=False, num_workers=5)
 
 attacks = [
     fa.FGSM(),
