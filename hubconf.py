@@ -85,3 +85,7 @@ def renset101_imagenet_fmix(pretrained=False, *args, **kwargs):
 
 def renset101_imagenet_mixup(pretrained=False, *args, **kwargs):
     return _resnet101('mixup', pretrained, *args, **kwargs)
+
+
+def renset101_imagenet_cutmix(pretrained=False, *args, **kwargs):
+    return _resnet101('cutmix', pretrained, *args, **kwargs)
