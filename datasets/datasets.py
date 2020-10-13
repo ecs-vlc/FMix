@@ -10,6 +10,7 @@ from utils import split, EqualSplitter, auto_augment, _fa_reduced_cifar10
 from datasets.toxic import toxic_ds
 from datasets.toxic_bert import toxic_bert
 from datasets.bengali import BengaliConsonantDiacritic, BengaliGraphemeRoot, BengaliVowelDiacritic, BengaliGraphemeWhole
+from datasets.fashion import OldFashionMNIST
 
 
 @auto_augment(_fa_reduced_cifar10)
@@ -143,6 +144,7 @@ dstransforms = {
     'cifar10h': cifar_transforms,
     'reduced_cifar': cifar_transforms,
     'fashion': fashion_transforms,
+    'fashion_old': fashion_transforms,
     'tinyimagenet': tinyimagenet_transforms,
     'imagenet': imagenet_transforms,
     'imagenet_hdf5': imagenet_transforms,
@@ -187,6 +189,18 @@ def fashion(args):
     transform_train, transform_test = dstransforms[args.dataset](args)
 
     root = './data/fashion'
+    root = args.dataset_path if args.dataset_path is not None else root
+    trainset = data(root=root, train=True, download=True, transform=transform_train)
+    valset = data(root=root, train=False, download=True, transform=transform_test)
+    return trainset, valset
+
+
+@split
+def fashion_old(args):
+    data = OldFashionMNIST
+    transform_train, transform_test = dstransforms[args.dataset](args)
+
+    root = './data/fashion_old'
     root = args.dataset_path if args.dataset_path is not None else root
     trainset = data(root=root, train=True, download=True, transform=transform_train)
     valset = data(root=root, train=False, download=True, transform=transform_test)
@@ -388,7 +402,7 @@ ds = {
     'cifar10': cifar,
     'cifar100': cifar,
     'fashion': fashion,
-    'fashion_old': fashion,
+    'fashion_old': fashion_old,
     'imagenet': imagenet,
     'imagenet_hdf5': imagenet_hdf5,
     'imagenet_a': imagenet_a,
