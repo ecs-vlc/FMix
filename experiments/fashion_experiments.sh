@@ -29,4 +29,4 @@ then
     bs=32
 fi
 
-python ../trainer.py --dataset=fashion --model=$model --epoch=$epoch --schedule=$schedule --lr=0.1 --dataset-path=$3 --msda-mode=$2 --batch-size=$bs
+python ../trainer.py --dataset=fashion --model=$model --epoch=$epoch --schedule ${schedule[@]} --lr=0.1 --dataset-path=$3 --msda-mode=$2 --batch-size=$bs

@@ -19,7 +19,7 @@ if [ "$2" == "resnet" ]
 then
     model=ResNet18
     epoch=200
-    schedule=(100 150)
+    schedule=('100' '150')
     bs=128
     cosine=False
 fi
@@ -51,4 +51,4 @@ then
     cosine=True
 fi
 
-python ../trainer.py --dataset=$ds --model=$model --epoch=$epoch --schedule=$schedule --lr=0.1 --dataset-path=$4 --msda-mode=$3 --batch-size=$bs --cosine-scheduler=$cosine
+python ../trainer.py --dataset=$ds --model=$model --epoch=$epoch --schedule "${schedule[@]}" --lr=0.1 --dataset-path=$4 --msda-mode=$3 --batch-size=$bs --cosine-scheduler=$cosine
