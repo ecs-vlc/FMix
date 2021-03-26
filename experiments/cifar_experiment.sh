@@ -19,7 +19,7 @@ if [ "$2" == "resnet" ]
 then
     model=ResNet18
     epoch=200
-    schedule=('100' '150')
+    schedule=(100 150)
     bs=128
     cosine=False
 fi
