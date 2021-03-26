@@ -51,4 +51,4 @@ then
     cosine=True
 fi
 
-python ../trainer.py --dataset=$ds --model=$model --epoch=$epoch --schedule "${schedule[@]}" --lr=0.1 --dataset-path=$4 --msda-mode=$3 --batch-size=$bs --cosine-scheduler=$cosine
+python ../trainer.py --dataset=$ds --model=$model --epoch=$epoch --schedule ${schedule[@]} --lr=0.1 --dataset-path=$4 --msda-mode=$3 --batch-size=$bs --cosine-scheduler=$cosine
